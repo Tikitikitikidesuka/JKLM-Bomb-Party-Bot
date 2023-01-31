@@ -13,6 +13,7 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     implementation group: 'net.sourceforge.htmlunit', name: 'htmlunit', version: '2.70.0'
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '2.41.0'
 }
 
 test {
