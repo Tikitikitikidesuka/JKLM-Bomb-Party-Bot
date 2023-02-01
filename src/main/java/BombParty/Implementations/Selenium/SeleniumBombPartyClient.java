@@ -16,6 +16,7 @@ public class SeleniumBombPartyClient implements BombPartyClient {
     final long TURN_TIMEOUT = 60;
 
     private WebDriver webDriver = null;
+    private JavascriptExecutor js = null;
     private String nickname = "BombPartyBot";
     private SeleniumBombPartyRoom room = null;
 
@@ -51,17 +52,18 @@ public class SeleniumBombPartyClient implements BombPartyClient {
 
         this.webDriver.get("https://jklm.fun/" + roomCode.toUpperCase());
 
-        JavascriptExecutor js = (JavascriptExecutor) this.webDriver;
+        this.js = (JavascriptExecutor) this.webDriver;
 
         // Find the nickname box and write in it
         WebElement nicknameField = this.webDriver.findElement(By.className("nickname"));
         nicknameField.sendKeys(this.nickname);
 
         // Assign the nickname
-        js.executeScript("settings.nickname = nicknameField.value;");
+        System.out.printf("settings.nickname = '" + this.nickname + "';");
+        this.js.executeScript("settings.nickname = '" + this.nickname + "';"); //nicknameField.value
 
         // Join the room
-        js.executeScript("postJson(\"/api/joinRoom\", { roomCode }, onPostJoinRoomResult);");
+        this.js.executeScript("postJson(\"/api/joinRoom\", { roomCode }, onPostJoinRoomResult);");
 
         // Check that the game exists
         WebDriverWait wait = new WebDriverWait(this.webDriver, FIND_ROOM_TIMEOUT);
@@ -73,8 +75,6 @@ public class SeleniumBombPartyClient implements BombPartyClient {
         } catch (TimeoutException ignored){}
 
         this.webDriver.switchTo().frame(this.webDriver.findElement(By.className("game")).findElement(By.tagName("iframe")));
-        js.executeScript("socket.emit(\"joinRound\")");
-
         this.room = new SeleniumBombPartyRoom(webDriver, roomCode);
         return this.room;
     }

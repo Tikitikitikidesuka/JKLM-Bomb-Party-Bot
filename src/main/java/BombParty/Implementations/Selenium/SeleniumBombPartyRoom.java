@@ -12,14 +12,22 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 class SeleniumBombPartyRoom implements BombPartyRoom {
     private String id = null;
     private WebDriver webDriver = null;
+    private JavascriptExecutor js = null;
 
     public SeleniumBombPartyRoom(WebDriver webDriver, String id) {
         this.id = id;
         this.webDriver = webDriver;
+        this.js = (JavascriptExecutor) this.webDriver;
     }
     @Override
     public String getId() {
         return this.id;
+    }
+
+    @Override
+    public void join() {
+        WebDriverWait wait = new WebDriverWait(this.webDriver, 2);
+        this.js.executeScript("socket.emit(\"joinRound\")");
     }
 
     @Override
@@ -43,17 +51,15 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public String getSyllable() {
-        JavascriptExecutor js = (JavascriptExecutor) this.webDriver;
-        String syllable = (String) js.executeScript("return milestone.syllable");
+        String syllable = (String) this.js.executeScript("return milestone.syllable");
         return syllable;
     }
 
     @Override
     public void playWord(String word) throws InvalidWordPlayedException {
-        JavascriptExecutor js = (JavascriptExecutor) this.webDriver;
         // Run iterations with false to simulate typing (false shows the input but does not submit it)
         //js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", false);");
-        js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", true);");
+        this.js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", true);");
     }
 
     @Override

@@ -8,9 +8,12 @@ public class main {
                 "driver/chromedriver.exe");
 
         BombPartyRoom room = bpClient.joinRoom("KWRY");
-        room.waitTurn(5);
+        while (true) {
+            room.join();
+        }
+        /*room.waitTurn(5);
         room.playWord(room.getSyllable());
-        System.out.println(room.getSyllable());
+        System.out.println(room.getSyllable());*/
         //room.exit();
     }
 }
