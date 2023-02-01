@@ -5,12 +5,12 @@ import BombParty.Implementations.Selenium.SeleniumBombPartyClient;
 public class main {
     public static void main(String[] args) {
         BombPartyClient bpClient = new SeleniumBombPartyClient("webdriver.chrome.driver",
-                "chromedriver");
+                "driver/chromedriver.exe");
 
-        BombPartyRoom room = bpClient.joinRoom("XSNW");
+        BombPartyRoom room = bpClient.joinRoom("KWRY");
         room.waitTurn(5);
-        room.playWord("ASDFASDF");
-        //System.out.println(room.getSyllable());
+        room.playWord(room.getSyllable());
+        System.out.println(room.getSyllable());
         //room.exit();
     }
 }

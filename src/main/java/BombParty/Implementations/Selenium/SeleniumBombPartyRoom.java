@@ -43,7 +43,9 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public String getSyllable() {
-        return this.webDriver.findElement(By.className("syllable")).getText();
+        JavascriptExecutor js = (JavascriptExecutor) this.webDriver;
+        String syllable = (String) js.executeScript("return milestone.syllable");
+        return syllable;
     }
 
     @Override
