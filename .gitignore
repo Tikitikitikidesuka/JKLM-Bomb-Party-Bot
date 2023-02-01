@@ -1,6 +1,9 @@
 # IntelliJ IDEA directory
 .idea
 
+# Chrome driver
+chromedriver
+
 # Gradle directory
 .gradle
 **/build/

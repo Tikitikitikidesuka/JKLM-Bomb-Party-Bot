@@ -1,4 +1,4 @@
-package BombParty.Implementations;
+package BombParty.Implementations.Selenium;
 
 import BombParty.BombPartyRoom;
 import BombParty.InvalidWordPlayedException;
