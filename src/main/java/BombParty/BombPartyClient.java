@@ -5,6 +5,5 @@ public interface  BombPartyClient {
     public String getNickname();
 
     public BombPartyRoom joinRoom(String roomCode) throws InvalidRoomCodeException, RoomNotFoundException;
-    public void exitRoom() throws NotInARoomException;
 }
 

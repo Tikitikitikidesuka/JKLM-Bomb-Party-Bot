@@ -1,5 +1,5 @@
 import BombParty.BombPartyClient;
-import BombParty.BombPartyClientException;
+import BombParty.BombPartyRoom;
 import BombParty.Implementations.Selenium.SeleniumBombPartyClient;
 
 public class main {
@@ -7,6 +7,7 @@ public class main {
         BombPartyClient bpClient = new SeleniumBombPartyClient("webdriver.chrome.driver",
                 "chromedriver");
 
-        bpClient.joinRoom("TFPB");
+        BombPartyRoom room = bpClient.joinRoom("XVNQ");
+        room.exit();
     }
 }

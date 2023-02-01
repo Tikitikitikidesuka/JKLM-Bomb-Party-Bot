@@ -1,9 +1,7 @@
 package BombParty.Implementations.Selenium;
 
 import BombParty.*;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -16,8 +14,9 @@ public class SeleniumBombPartyClient implements BombPartyClient {
     static final long IMPLICIT_WAIT_TIMEOUT = 5;
     static final long FIND_ROOM_TIMEOUT = 2;
 
-    private WebDriver webDriver;
+    private WebDriver webDriver = null;
     private String nickname = "BombPartyBot";
+    private SeleniumBombPartyRoom room = null;
 
     public SeleniumBombPartyClient(String driver, String driverPath) {
         System.setProperty(driver, driverPath);
@@ -35,40 +34,38 @@ public class SeleniumBombPartyClient implements BombPartyClient {
 
     @Override
     public BombPartyRoom joinRoom(String roomCode) throws InvalidRoomCodeException, RoomNotFoundException {
-        if (webDriver != null)
-            webDriver.quit();
+        if (this.webDriver != null)
+            this.webDriver.quit();
 
-        webDriver = new ChromeDriver();
-        webDriver.manage().window().maximize();
-        webDriver.manage().deleteAllCookies();
-        webDriver.manage().timeouts().pageLoadTimeout(PAGE_LOAD_TIMEOUT, TimeUnit.SECONDS);
-        webDriver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        this.webDriver = new ChromeDriver();
+        this.webDriver.manage().window().maximize();
+        this.webDriver.manage().deleteAllCookies();
+        this.webDriver.manage().timeouts().pageLoadTimeout(PAGE_LOAD_TIMEOUT, TimeUnit.SECONDS);
+        this.webDriver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT_TIMEOUT, TimeUnit.SECONDS);
 
         if (!validateRoomCode(roomCode)) {
-            webDriver.quit();
+            this.webDriver.quit();
             throw new InvalidRoomCodeException(roomCode);
         }
 
-        webDriver.get("https://jklm.fun/" + roomCode.toUpperCase());
+        this.webDriver.get("https://jklm.fun/" + roomCode.toUpperCase());
 
-        WebElement nicknameField = webDriver.findElement(By.className("nickname"));
+        WebElement nicknameField = this.webDriver.findElement(By.className("nickname"));
         nicknameField.sendKeys(this.nickname);
-        WebElement playButton = webDriver.findElement(By.xpath("//button[text()='OK']"));
+        WebElement playButton = this.webDriver.findElement(By.xpath("//button[text()='OK']"));
         playButton.click();
 
         // Check that the game exists
-        WebDriverWait wait = new WebDriverWait(webDriver, FIND_ROOM_TIMEOUT);
-        if (wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("disconnected"))) != null) {
-            webDriver.quit();
-            throw new RoomNotFoundException(roomCode);
-        }
+        WebDriverWait wait = new WebDriverWait(this.webDriver, FIND_ROOM_TIMEOUT);
+        try{
+            if (wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("disconnected"))) != null) {
+                this.webDriver.quit();
+                throw new RoomNotFoundException(roomCode);
+            }
+        } catch (TimeoutException ignored){}
 
-        return new SeleniumBombPartyRoom();
-    }
-
-    @Override
-    public void exitRoom() throws NotInARoomException {
-
+        this.room = new SeleniumBombPartyRoom(webDriver, roomCode);
+        return this.room;
     }
 
     static private boolean validateRoomCode(String roomCode) {

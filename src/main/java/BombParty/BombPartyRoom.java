@@ -6,5 +6,7 @@ public interface BombPartyRoom {
     public void waitTurn(long timeoutSeconds);
     public String getSyllable();
     public void playWord(String word) throws InvalidWordPlayedException;
+
+    public void exit();
 }
 
