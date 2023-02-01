@@ -2,6 +2,9 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Wait;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.concurrent.TimeUnit;
 
@@ -45,7 +48,24 @@ public class main {
 
         System.out.println("Game joined");
 
-        while(true) {}
+
+        while(true) {
+            WebDriverWait wait = new WebDriverWait(driver, 60);
+            if (wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("selfTurn"))) != null) {
+                System.out.println("Mi turno!");
+                String syllable = driver.findElement(By.className("syllable")).getText();
+                System.out.println("La sílaba es: " + syllable);
+                WebElement inputField = driver.findElement(By.className("selfTurn")).findElement(By.tagName("input"));
+                inputField.sendKeys("XDXDXD\n");
+            } else {
+                System.out.println("Todavía no...");
+            }
+        }
+
+
+
+
+        //while(true) {}
         //driver.quit();
     }
 }
