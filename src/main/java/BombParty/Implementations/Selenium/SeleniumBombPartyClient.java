@@ -10,9 +10,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class SeleniumBombPartyClient implements BombPartyClient {
-    static final long PAGE_LOAD_TIMEOUT = 10;
-    static final long IMPLICIT_WAIT_TIMEOUT = 5;
-    static final long FIND_ROOM_TIMEOUT = 2;
+    final long PAGE_LOAD_TIMEOUT = 10;
+    final long IMPLICIT_WAIT_TIMEOUT = 5;
+    final long FIND_ROOM_TIMEOUT = 2;
+    final long TURN_TIMEOUT = 60;
 
     private WebDriver webDriver = null;
     private String nickname = "BombPartyBot";
@@ -63,6 +64,10 @@ public class SeleniumBombPartyClient implements BombPartyClient {
                 throw new RoomNotFoundException(roomCode);
             }
         } catch (TimeoutException ignored){}
+
+        this.webDriver.switchTo().frame(this.webDriver.findElement(By.className("game")).findElement(By.tagName("iframe")));
+        WebElement joinButton = this.webDriver.findElement(By.xpath("//button[@data-text='joinGame']"));
+        joinButton.click();
 
         this.room = new SeleniumBombPartyRoom(webDriver, roomCode);
         return this.room;
