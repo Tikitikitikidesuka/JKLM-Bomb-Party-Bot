@@ -66,8 +66,8 @@ public class SeleniumBombPartyClient implements BombPartyClient {
         } catch (TimeoutException ignored){}
 
         this.webDriver.switchTo().frame(this.webDriver.findElement(By.className("game")).findElement(By.tagName("iframe")));
-        WebElement joinButton = this.webDriver.findElement(By.xpath("//button[@data-text='joinGame']"));
-        joinButton.click();
+        JavascriptExecutor js = (JavascriptExecutor) this.webDriver;
+        js.executeScript("socket.emit(\"joinRound\")");
 
         this.room = new SeleniumBombPartyRoom(webDriver, roomCode);
         return this.room;

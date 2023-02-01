@@ -3,6 +3,7 @@ package BombParty.Implementations.Selenium;
 import BombParty.BombPartyRoom;
 import BombParty.InvalidWordPlayedException;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -29,6 +30,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public boolean waitTurn(long timeoutSeconds, long attempts) {
+        // Check iframe's javascript variable milestone.currentPlayerPeerId
         long attempt = 0;
         boolean turn = false;
 
@@ -46,7 +48,10 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public void playWord(String word) throws InvalidWordPlayedException {
-
+        JavascriptExecutor js = (JavascriptExecutor) this.webDriver;
+        // Run iterations with false to simulate typing (false shows the input but does not submit it)
+        //js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", false);");
+        js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", true);");
     }
 
     @Override
