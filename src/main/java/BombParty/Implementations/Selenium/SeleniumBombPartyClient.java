@@ -11,10 +11,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class SeleniumBombPartyClient implements BombPartyClient {
-    final long PAGE_LOAD_TIMEOUT = 10;
-    final long IMPLICIT_WAIT_TIMEOUT = 5;
-    final long EXPLICIT_WAIT_TIMEOUT = 5;
-
     private WebDriver webDriver = null;
     private JavascriptExecutor js = null;
     private String nickname = "BombPartyBot";
@@ -42,8 +38,8 @@ public class SeleniumBombPartyClient implements BombPartyClient {
         this.webDriver = new ChromeDriver();
         this.webDriver.manage().window().maximize();
         this.webDriver.manage().deleteAllCookies();
-        this.webDriver.manage().timeouts().pageLoadTimeout(PAGE_LOAD_TIMEOUT, TimeUnit.SECONDS);
-        this.webDriver.manage().timeouts().implicitlyWait(IMPLICIT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        this.webDriver.manage().timeouts().pageLoadTimeout(Constants.PAGE_LOAD_TIMEOUT, TimeUnit.SECONDS);
+        this.webDriver.manage().timeouts().implicitlyWait(Constants.IMPLICIT_WAIT_TIMEOUT, TimeUnit.SECONDS);
 
         if (!validateRoomCode(roomCode)) {
             this.webDriver.quit();
@@ -53,7 +49,7 @@ public class SeleniumBombPartyClient implements BombPartyClient {
         this.webDriver.get("https://jklm.fun/" + roomCode.toUpperCase());
         this.js = (JavascriptExecutor) this.webDriver;
 
-        WebDriverWait loadWait = new WebDriverWait(this.webDriver, EXPLICIT_WAIT_TIMEOUT);
+        WebDriverWait loadWait = new WebDriverWait(this.webDriver, Constants.EXPLICIT_WAIT_TIMEOUT);
 
         // Wait until page loads
         WebElement nicknameField = this.webDriver.findElement(By.className("nickname"));
