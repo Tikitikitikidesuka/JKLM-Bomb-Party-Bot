@@ -3,6 +3,7 @@ package BombParty.Implementations.Selenium;
 import BombParty.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -12,8 +13,7 @@ import java.util.regex.Pattern;
 public class SeleniumBombPartyClient implements BombPartyClient {
     final long PAGE_LOAD_TIMEOUT = 10;
     final long IMPLICIT_WAIT_TIMEOUT = 5;
-    final long FIND_ROOM_TIMEOUT = 2;
-    final long TURN_TIMEOUT = 60;
+    final long EXPLICIT_WAIT_TIMEOUT = 5;
 
     private WebDriver webDriver = null;
     private JavascriptExecutor js = null;
@@ -51,30 +51,33 @@ public class SeleniumBombPartyClient implements BombPartyClient {
         }
 
         this.webDriver.get("https://jklm.fun/" + roomCode.toUpperCase());
-
         this.js = (JavascriptExecutor) this.webDriver;
 
-        // Find the nickname box and write in it
+        WebDriverWait loadWait = new WebDriverWait(this.webDriver, EXPLICIT_WAIT_TIMEOUT);
+
+        // Wait until page loads
         WebElement nicknameField = this.webDriver.findElement(By.className("nickname"));
-        nicknameField.sendKeys(this.nickname);
+        loadWait.until(ExpectedConditions.elementToBeClickable(nicknameField));
 
         // Assign the nickname
-        System.out.printf("settings.nickname = '" + this.nickname + "';");
-        this.js.executeScript("settings.nickname = '" + this.nickname + "';"); //nicknameField.value
-
-        // Join the room
-        this.js.executeScript("postJson(\"/api/joinRoom\", { roomCode }, onPostJoinRoomResult);");
+        this.js.executeScript(String.format("""
+                nicknameField.value = "%s";
+                const joinEvent = new Event('submit');
+                setNicknameForm_onSubmit(joinEvent);
+                """, this.nickname));
 
         // Check that the game exists
-        WebDriverWait wait = new WebDriverWait(this.webDriver, FIND_ROOM_TIMEOUT);
         try{
-            if (wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("disconnected"))) != null) {
+            if (loadWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("disconnected"))) != null) {
                 this.webDriver.quit();
                 throw new RoomNotFoundException(roomCode);
             }
         } catch (TimeoutException ignored){}
 
-        this.webDriver.switchTo().frame(this.webDriver.findElement(By.className("game")).findElement(By.tagName("iframe")));
+        WebElement gameFrame = this.webDriver.findElement(By.className("game")).findElement(By.tagName("iframe"));
+        loadWait.until(ExpectedConditions.elementToBeClickable(gameFrame));
+        this.webDriver.switchTo().frame(gameFrame);
+
         this.room = new SeleniumBombPartyRoom(webDriver, roomCode);
         return this.room;
     }

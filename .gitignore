@@ -2,7 +2,7 @@
 .idea
 
 # Chrome driver
-chromedriver
+driver
 
 # Gradle directory
 .gradle
