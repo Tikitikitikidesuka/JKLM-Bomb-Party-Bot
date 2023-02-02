@@ -56,6 +56,11 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
     }
 
     @Override
+    public void typeWord(String word) {
+        this.js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", false);");
+    }
+
+    @Override
     public void playWord(String word) throws InvalidWordPlayedException {
         // Run iterations with false to simulate typing (false shows the input but does not submit it)
         //js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", false);");
