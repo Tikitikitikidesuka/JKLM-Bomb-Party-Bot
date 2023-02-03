@@ -2,7 +2,6 @@ import BombParty.Client.BombPartyClient;
 import BombParty.Client.BombPartyRoom;
 import BombParty.Client.Implementations.Selenium.SeleniumBombPartyClient;
 import BombParty.Client.InvalidWordPlayedException;
-import BombParty.WordServer.InvalidWordCatcher;
 
 public class main {
     public static void main(String[] args) {
@@ -10,7 +9,6 @@ public class main {
                 "driver/chromedriver.exe");
 
         BombPartyRoom room = bpClient.joinRoom("PYVU");
-        InvalidWordCatcher invalidWordCatcher = new InvalidWordCatcher();
 
         while(true) {
             room.join();
@@ -18,7 +16,7 @@ public class main {
                 try {
                     room.playWord(room.getSyllable());
                 } catch (InvalidWordPlayedException invalidWord) {
-                    invalidWordCatcher.addWord(invalidWord.getWord());
+
                 }
             }
         }

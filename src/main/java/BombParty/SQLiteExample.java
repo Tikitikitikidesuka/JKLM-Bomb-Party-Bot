@@ -9,7 +9,7 @@ import java.util.Scanner;
 
 public class SQLiteExample {
     public static void main(String[] args) {
-
+        dictionary();
     }
 
     public static void dictionary() {
@@ -17,6 +17,8 @@ public class SQLiteExample {
         try {
             // Create a connection to the database
             SQLiteConfig config = new SQLiteConfig();
+            config.setPageSize(4096);
+            config.setCacheSize(4096);
             config.setJournalMode(SQLiteConfig.JournalMode.OFF);
             config.setSynchronous(SQLiteConfig.SynchronousMode.OFF);
             config.setLockingMode(SQLiteConfig.LockingMode.EXCLUSIVE);
