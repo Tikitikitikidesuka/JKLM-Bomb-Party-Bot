@@ -8,5 +8,5 @@ public final class Constants {
     public static final long PAGE_LOAD_TIMEOUT = 10;
     public static final long IMPLICIT_WAIT_TIMEOUT = 5;
     public static final long EXPLICIT_WAIT_TIMEOUT = 5;
-    public static final long DEFAULT_TURN_WAIT_TIMEOUT = 5;
+    public static final long ASYNC_SCRIPT_TIMEOUT = (long) (Math.pow(2, 16) - 1);
 }

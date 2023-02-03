@@ -3,8 +3,6 @@ package BombParty.Implementations.Selenium;
 import BombParty.BombPartyRoom;
 import BombParty.InvalidWordPlayedException;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.events.EventFiringWebDriver;
-import org.openqa.selenium.support.events.WebDriverEventListener;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -29,10 +27,6 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
         this.js.executeScript("socket.emit(\"joinRound\")");
     }
 
-    public boolean oldWaitTurn() {
-        return waitTurn(Constants.DEFAULT_TURN_WAIT_TIMEOUT);
-    }
-
     @Override
     public boolean waitTurn() {
         // Check if it is already the bot's turn
@@ -45,7 +39,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
                     window.removeEventListener("selfTurn", selfTurnInjectionCallback);
                     callback(event.detail.valid);
                 }
-                
+                                
                 var callback = arguments[arguments.length - 1];                
                 window.addEventListener("selfTurn", selfTurnInjectionCallback);
                                 
@@ -56,7 +50,17 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
                         if (milestone.currentPlayerPeerId === selfPeerId)
                             window.dispatchEvent(new CustomEvent("selfTurn", {detail: {valid: true}}));
                                 
-                        cached_function.apply(this, arguments); // use .apply() to call it
+                        cached_function.apply(this, arguments);
+                    };
+                })();
+                                
+                round_exit = (function() {
+                    var cached_function = round_exit;
+                                
+                    return function() {
+                        window.dispatchEvent(new CustomEvent("selfTurn", {detail: {valid: false}}));
+                                
+                        cached_function.apply(this, arguments);
                     };
                 })();
                 """);
@@ -119,25 +123,6 @@ round_exit = (function() {
     }
 
     @Override
-    public boolean waitTurn(long timeoutSeconds) {
-        while(!attemptTurnWait(timeoutSeconds));
-        return true;
-    }
-
-    @Override
-    public boolean waitTurn(long timeoutSeconds, long attempts) {
-        // Check iframe's javascript variable milestone.currentPlayerPeerId
-        long attempt = 0;
-        boolean turn = false;
-
-        while(!turn && attempt++ < attempts) {
-            turn = attemptTurnWait(timeoutSeconds);
-        }
-
-        return turn;
-    }
-
-    @Override
     public String getSyllable() {
         return (String) this.js.executeScript("return milestone.syllable");
     }
@@ -166,6 +151,7 @@ round_exit = (function() {
                     }
                     
                     var callback = arguments[arguments.length - 1];
+                    
                     socket.on("failWord", incorrectWordInjectionCallback);
                     socket.on("correctWord", correctWordInjectionCallback);
                      
@@ -179,17 +165,5 @@ round_exit = (function() {
     @Override
     public void exit() {
         this.js.executeScript("socket.emit(\"leaveRound\");");
-    }
-
-    private boolean attemptTurnWait(long timeoutSeconds) {
-        WebDriverWait wait = new WebDriverWait(this.webDriver, timeoutSeconds);
-
-        boolean turn = false;
-
-        try {
-            turn = wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("selfTurn"))) != null;
-        } catch (TimeoutException ignored) {}
-
-        return turn;
     }
 }

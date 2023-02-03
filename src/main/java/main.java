@@ -1,6 +1,7 @@
 import BombParty.BombPartyClient;
 import BombParty.BombPartyRoom;
 import BombParty.Implementations.Selenium.SeleniumBombPartyClient;
+import BombParty.InvalidWordPlayedException;
 
 public class main {
     public static void main(String[] args) {
@@ -8,20 +9,16 @@ public class main {
                 "driver/chromedriver.exe");
 
         BombPartyRoom room = bpClient.joinRoom("PYVU");
-        room.join();
 
-        System.out.println(room.waitTurn());
-        System.out.println(room.getSyllable());
-        room.playWord(room.getSyllable());
+        while(true) {
+            room.join();
+            while (room.waitTurn()) {
+                try {
+                    room.playWord(room.getSyllable());
+                } catch (InvalidWordPlayedException ignored) {}
+            }
+        }
 
-        System.out.println(room.waitTurn());
-        System.out.println(room.getSyllable());
-        room.playWord(room.getSyllable());
-
-        System.out.println(room.waitTurn());
-        System.out.println(room.getSyllable());
-        room.playWord(room.getSyllable());
-
-        room.exit();
+//        room.exit();
     }
 }

@@ -40,6 +40,8 @@ public class SeleniumBombPartyClient implements BombPartyClient {
         this.webDriver.manage().deleteAllCookies();
         this.webDriver.manage().timeouts().pageLoadTimeout(Constants.PAGE_LOAD_TIMEOUT, TimeUnit.SECONDS);
         this.webDriver.manage().timeouts().implicitlyWait(Constants.IMPLICIT_WAIT_TIMEOUT, TimeUnit.SECONDS);
+        System.out.println(Constants.ASYNC_SCRIPT_TIMEOUT);
+        this.webDriver.manage().timeouts().setScriptTimeout(Constants.ASYNC_SCRIPT_TIMEOUT, TimeUnit.SECONDS);
 
         if (!validateRoomCode(roomCode)) {
             this.webDriver.quit();
