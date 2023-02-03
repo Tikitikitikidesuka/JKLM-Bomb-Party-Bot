@@ -18,6 +18,7 @@ public class SQLiteExample {
             statement.executeUpdate("""
                                         CREATE TABLE IF NOT EXISTS words(
                                             word TEXT UNIQUE NOT NULL,
+                                            uniqueChars INT NOT NULL,
                                             used BOOLEAN NOT NULL)
                                         """);
 
@@ -31,6 +32,21 @@ public class SQLiteExample {
                     System.out.println(e);
                 }
             }
+
+            System.out.println("Done inserting");
+
+            String syllable = "OG";
+
+            ResultSet validWords = statement.executeQuery(String.format("""
+                SELECT word, LENGTH(REPLACE(word, '', '')) AS num_distinct_chars
+                FROM words
+                WHERE word LIKE '%%%s%%'
+                ORDER BY num_distinct_chars DESC
+                """, syllable));
+
+            while(validWords.next())
+                System.out.println(validWords.getString("word") + ", " + validWords.getString("num_distinct_chars"));
+
 
             /*ResultSet result = statement.executeQuery("SELECT * FROM words");
             while(result.next())
