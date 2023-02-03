@@ -7,16 +7,17 @@ import BombParty.WordServer.WordServer;
 import org.sqlite.SQLiteConfig;
 
 import java.nio.file.Path;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Connection;
 import java.util.Collection;
 
 public class SQLiteWordServer implements WordServer {
-    private final Connection connection;
+    private Connection connection;
 
-    private final Statement getWordBySyllableStmt;
-    private final Statement getWordBySyllableAndLettersStmt;
+    private PreparedStatement getWordBySyllableStmt;
+    private PreparedStatement getWordBySyllableAndLettersStmt;
 
     public SQLiteWordServer(Path databasePath) {
         SQLiteConfig config = new SQLiteConfig();
@@ -45,7 +46,6 @@ public class SQLiteWordServer implements WordServer {
 
     @Override
     public String getWordContaining(String syllable) throws NoMatchingWordException {
-        state
     }
 
     @Override
@@ -68,6 +68,12 @@ public class SQLiteWordServer implements WordServer {
     }
 
     private void prepareGetWordBySyllableAndLettersStmt() {
-
+        this.getWordBySyllableAndLettersStmt = this.connection.prepareStatement("""
+            SELECT word
+            FROM words
+            WHERE word LIKE ? AND NOT used
+            ORDER BY uniqueChars DESC
+            LIMIT 1
+            """);
     }
 }
