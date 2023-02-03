@@ -7,11 +7,21 @@ public class main {
         BombPartyClient bpClient = new SeleniumBombPartyClient("webdriver.chrome.driver",
                 "driver/chromedriver.exe");
 
-        BombPartyRoom room = bpClient.joinRoom("ZYWE");
+        BombPartyRoom room = bpClient.joinRoom("PYVU");
         room.join();
-        room.waitTurn();
-        room.playWord(room.getSyllable());
+
+        System.out.println(room.waitTurn());
         System.out.println(room.getSyllable());
-        //room.exit();
+        room.playWord(room.getSyllable());
+
+        System.out.println(room.waitTurn());
+        System.out.println(room.getSyllable());
+        room.playWord(room.getSyllable());
+
+        System.out.println(room.waitTurn());
+        System.out.println(room.getSyllable());
+        room.playWord(room.getSyllable());
+
+        room.exit();
     }
 }
