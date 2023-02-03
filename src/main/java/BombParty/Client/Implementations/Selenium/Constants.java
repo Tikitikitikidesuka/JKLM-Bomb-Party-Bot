@@ -1,4 +1,4 @@
-package BombParty.Implementations.Selenium;
+package BombParty.Client.Implementations.Selenium;
 
 public final class Constants {
     private Constants() {

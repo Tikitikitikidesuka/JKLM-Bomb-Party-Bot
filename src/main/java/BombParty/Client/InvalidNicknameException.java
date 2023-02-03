@@ -1,4 +1,4 @@
-package BombParty;
+package BombParty.Client;
 
 public class InvalidNicknameException extends BombPartyClientException {
     public InvalidNicknameException(String nickname) {

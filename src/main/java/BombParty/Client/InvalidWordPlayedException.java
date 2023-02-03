@@ -1,4 +1,4 @@
-package BombParty;
+package BombParty.Client;
 
 public class InvalidWordPlayedException extends BombPartyRoomException {
     public InvalidWordPlayedException(BombPartyRoom room, String word) {

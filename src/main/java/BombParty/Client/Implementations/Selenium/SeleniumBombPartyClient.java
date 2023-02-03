@@ -1,9 +1,8 @@
-package BombParty.Implementations.Selenium;
+package BombParty.Client.Implementations.Selenium;
 
-import BombParty.*;
+import BombParty.Client.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 

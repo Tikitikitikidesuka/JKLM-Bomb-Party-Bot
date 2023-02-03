@@ -1,9 +1,8 @@
-package BombParty.Implementations.Selenium;
+package BombParty.Client.Implementations.Selenium;
 
-import BombParty.BombPartyRoom;
-import BombParty.InvalidWordPlayedException;
+import BombParty.Client.BombPartyRoom;
+import BombParty.Client.InvalidWordPlayedException;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 class SeleniumBombPartyRoom implements BombPartyRoom {

@@ -1,4 +1,4 @@
-package BombParty;
+package BombParty.Client;
 
 public class RoomNotFoundException extends BombPartyClientException {
     public RoomNotFoundException(String roomCode) {

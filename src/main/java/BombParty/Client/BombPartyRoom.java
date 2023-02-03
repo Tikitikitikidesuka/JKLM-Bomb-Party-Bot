@@ -1,4 +1,4 @@
-package BombParty;
+package BombParty.Client;
 
 public interface BombPartyRoom {
     String getId();

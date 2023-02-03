@@ -1,4 +1,4 @@
-package BombParty;
+package BombParty.Client;
 
 public class InvalidRoomCodeException extends BombPartyClientException {
     public InvalidRoomCodeException(String roomCode) {

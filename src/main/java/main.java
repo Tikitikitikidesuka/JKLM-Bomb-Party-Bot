@@ -1,7 +1,7 @@
-import BombParty.BombPartyClient;
-import BombParty.BombPartyRoom;
-import BombParty.Implementations.Selenium.SeleniumBombPartyClient;
-import BombParty.InvalidWordPlayedException;
+import BombParty.Client.BombPartyClient;
+import BombParty.Client.BombPartyRoom;
+import BombParty.Client.Implementations.Selenium.SeleniumBombPartyClient;
+import BombParty.Client.InvalidWordPlayedException;
 
 public class main {
     public static void main(String[] args) {

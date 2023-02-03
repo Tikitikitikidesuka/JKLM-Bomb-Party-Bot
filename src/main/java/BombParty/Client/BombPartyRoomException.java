@@ -1,4 +1,4 @@
-package BombParty;
+package BombParty.Client;
 
 public class BombPartyRoomException extends BombPartyClientException {
     public BombPartyRoomException(BombPartyRoom room, String error) {

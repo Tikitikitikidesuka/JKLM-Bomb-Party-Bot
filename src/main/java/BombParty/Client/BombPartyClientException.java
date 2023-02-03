@@ -1,4 +1,4 @@
-package BombParty;
+package BombParty.Client;
 
 public class BombPartyClientException extends RuntimeException {
     public BombPartyClientException(String error) {

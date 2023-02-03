@@ -1,4 +1,4 @@
-package BombParty;
+package BombParty.Client;
 
 public class InARoomException extends BombPartyClientException {
     public InARoomException() {
