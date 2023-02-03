@@ -22,31 +22,48 @@ public class SQLiteExample {
                                             used BOOLEAN NOT NULL)
                                         """);
 
+            PreparedStatement pstmt = connection.prepareStatement("""
+                        INSERT INTO words (word, uniqueChars, used)
+                        VALUES (?, ?, FALSE)
+                        """);
+
             File words = new File("mit_words.txt");
             Scanner reader = new Scanner(words);
+            int count = 0;
             while(reader.hasNextLine()) {
                 String word = reader.nextLine();
                 try {
-                    statement.executeUpdate("INSERT INTO words (word, used) VALUES ('" + word.trim().toUpperCase() + "', FALSE)");
+                    pstmt.clearParameters();
+                    pstmt.setString(1, word.trim().toUpperCase());
+                    pstmt.setInt(2, (int) word.chars().distinct().count());
+                    pstmt.addBatch();
+                    count++;
+                    if(count%1000 == 0)
+                        pstmt.executeBatch();
                 } catch (SQLException e) {
-                    System.out.println(e);
+                    //System.out.println(e);
                 }
             }
+            try {
+                pstmt.executeBatch();
+            } catch (SQLException e) {
+                //System.out.println(e);
+            }
+
 
             System.out.println("Done inserting");
 
             String syllable = "OG";
 
             ResultSet validWords = statement.executeQuery(String.format("""
-                SELECT word, LENGTH(REPLACE(word, '', '')) AS num_distinct_chars
+                SELECT word, uniqueChars
                 FROM words
                 WHERE word LIKE '%%%s%%'
-                ORDER BY num_distinct_chars DESC
+                ORDER BY uniqueChars DESC
                 """, syllable));
 
             while(validWords.next())
-                System.out.println(validWords.getString("word") + ", " + validWords.getString("num_distinct_chars"));
-
+                System.out.println(validWords.getString("word") + ", " + validWords.getString("uniqueChars"));
 
             /*ResultSet result = statement.executeQuery("SELECT * FROM words");
             while(result.next())
