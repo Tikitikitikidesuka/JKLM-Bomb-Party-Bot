@@ -1,6 +1,6 @@
-package BombParty.WordServer.WordDatabase;
+package BombParty.WordServer;
 
-public class WordAlreadyInDatabaseException extends WordDatabaseException {
+public class WordAlreadyInDatabaseException extends WordServerException {
     private final String word;
 
     public WordAlreadyInDatabaseException(String word) {
