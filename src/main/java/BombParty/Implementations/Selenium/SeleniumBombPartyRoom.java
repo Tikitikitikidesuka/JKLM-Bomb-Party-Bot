@@ -178,7 +178,7 @@ round_exit = (function() {
 
     @Override
     public void exit() {
-        this.js.executeScript("socket.emit(\"forceQuit\");");
+        this.js.executeScript("socket.emit(\"leaveRound\");");
     }
 
     private boolean attemptTurnWait(long timeoutSeconds) {
