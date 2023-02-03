@@ -2,10 +2,9 @@ package BombParty.Implementations.Selenium;
 
 import BombParty.BombPartyRoom;
 import BombParty.InvalidWordPlayedException;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.*;
+import org.openqa.selenium.support.events.EventFiringWebDriver;
+import org.openqa.selenium.support.events.WebDriverEventListener;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -31,6 +30,11 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
     }
 
     @Override
+    public boolean waitTurn() {
+        return waitTurn(Constants.DEFAULT_TURN_WAIT_TIMEOUT);
+    }
+
+    @Override
     public boolean waitTurn(long timeoutSeconds) {
         while(!attemptTurnWait(timeoutSeconds));
         return true;
@@ -51,8 +55,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public String getSyllable() {
-        String syllable = (String) this.js.executeScript("return milestone.syllable");
-        return syllable;
+        return (String) this.js.executeScript("return milestone.syllable");
     }
 
     @Override
@@ -62,9 +65,26 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public void playWord(String word) throws InvalidWordPlayedException {
-        // Run iterations with false to simulate typing (false shows the input but does not submit it)
-        //js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", false);");
-        this.js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", true);");
+        boolean validWord = (boolean) this.js.executeAsyncScript(String.format("""
+                    function incorrectWordInjectionCallback() {
+                        socket.off("failWord", incorrectWordInjectionCallback);
+                        callback(false);
+                    }
+                    
+                    function correctWordInjectionCallback() {
+                        socket.off("correctWord", correctWordInjectionCallback);
+                        callback(true);
+                    }
+                    
+                    var callback = arguments[arguments.length - 1];
+                    socket.on("failWord", incorrectWordInjectionCallback);
+                    socket.on("correctWord", correctWordInjectionCallback);
+                     
+                    socket.emit("setWord", "%s", true);
+                """, word));
+
+        if (!validWord)
+            throw new InvalidWordPlayedException(this, word);
     }
 
     @Override

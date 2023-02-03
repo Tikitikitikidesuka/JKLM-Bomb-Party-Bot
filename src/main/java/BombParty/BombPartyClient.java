@@ -1,9 +1,9 @@
 package BombParty;
 
 public interface  BombPartyClient {
-    public void setNickname(String nickname) throws InvalidNicknameException, InARoomException;
-    public String getNickname();
+    void setNickname(String nickname) throws InvalidNicknameException, InARoomException;
+    String getNickname();
 
-    public BombPartyRoom joinRoom(String roomCode) throws InvalidRoomCodeException, RoomNotFoundException;
+    BombPartyRoom joinRoom(String roomCode) throws InvalidRoomCodeException, RoomNotFoundException;
 }
 

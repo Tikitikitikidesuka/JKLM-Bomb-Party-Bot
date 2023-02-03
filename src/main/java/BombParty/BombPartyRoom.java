@@ -1,14 +1,15 @@
 package BombParty;
 
 public interface BombPartyRoom {
-    public String getId();
+    String getId();
 
-    public void join();
-    public boolean waitTurn(long timeoutSeconds);
-    public boolean waitTurn(long timeoutSeconds, long attempts);
-    public String getSyllable();
-    public void typeWord(String word);
-    public void playWord(String word) throws InvalidWordPlayedException;
+    void join();
+    boolean waitTurn();
+    boolean waitTurn(long timeoutSeconds);
+    boolean waitTurn(long timeoutSeconds, long attempts);
+    String getSyllable();
+    void typeWord(String word);
+    void playWord(String word) throws InvalidWordPlayedException;
 
-    public void exit();
+    void exit();
 }
