@@ -1,4 +1,4 @@
-package BombParty.WordServer.Implementations.JDBC;
+package BombParty.WordServer.Implementations.SQLite;
 
 import BombParty.WordServer.NoMatchingWordException;
 import BombParty.WordServer.WordAlreadyInDatabaseException;
@@ -7,6 +7,7 @@ import BombParty.WordServer.WordServer;
 import org.sqlite.SQLiteConfig;
 
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Connection;
 import java.util.Collection;
@@ -56,7 +57,7 @@ public class SQLiteWordServer implements WordServer {
 
     }
 
-    private void prepareGetWordBySyllableStmt() {
+    private void prepareGetWordBySyllableStmt() throws SQLException {
         this.getWordBySyllableStmt = this.connection.prepareStatement("""
             SELECT word
             FROM words
