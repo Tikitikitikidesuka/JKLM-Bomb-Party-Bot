@@ -1,5 +1,7 @@
 package BombParty;
 
+import org.sqlite.SQLiteConfig;
+
 import java.sql.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,11 +9,19 @@ import java.util.Scanner;
 
 public class SQLiteExample {
     public static void main(String[] args) {
+
+    }
+
+    public static void dictionary() {
         Connection connection = null;
         try {
             // Create a connection to the database
-            Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:words.db");
+            SQLiteConfig config = new SQLiteConfig();
+            config.setJournalMode(SQLiteConfig.JournalMode.OFF);
+            config.setSynchronous(SQLiteConfig.SynchronousMode.OFF);
+            config.setLockingMode(SQLiteConfig.LockingMode.EXCLUSIVE);
+            config.setTempStore(SQLiteConfig.TempStore.MEMORY);
+            connection = config.createConnection("jdbc:sqlite:words.db");
 
             // Create a table to store the words
             Statement statement = connection.createStatement();
@@ -27,7 +37,7 @@ public class SQLiteExample {
                         VALUES (?, ?, FALSE)
                         """);
 
-            File words = new File("mit_words.txt");
+            File words = new File("words_alpha.txt");
             Scanner reader = new Scanner(words);
             int count = 0;
             while(reader.hasNextLine()) {
@@ -51,6 +61,7 @@ public class SQLiteExample {
             }
 
 
+/*
             System.out.println("Done inserting");
 
             String syllable = "OG";
@@ -64,6 +75,7 @@ public class SQLiteExample {
 
             while(validWords.next())
                 System.out.println(validWords.getString("word") + ", " + validWords.getString("uniqueChars"));
+*/
 
             /*ResultSet result = statement.executeQuery("SELECT * FROM words");
             while(result.next())
