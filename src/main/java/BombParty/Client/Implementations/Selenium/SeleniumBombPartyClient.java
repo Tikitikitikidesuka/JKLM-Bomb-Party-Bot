@@ -6,6 +6,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -15,8 +16,8 @@ public class SeleniumBombPartyClient implements BombPartyClient {
     private String nickname = "BombPartyBot";
     private SeleniumBombPartyRoom room = null;
 
-    public SeleniumBombPartyClient(String driver, String driverPath) {
-        System.setProperty(driver, driverPath);
+    public SeleniumBombPartyClient(String driver, Path driverPath) {
+        System.setProperty(driver, driverPath.toString());
     }
 
     @Override
