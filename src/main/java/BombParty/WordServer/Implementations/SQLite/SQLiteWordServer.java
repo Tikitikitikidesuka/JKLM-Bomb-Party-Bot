@@ -28,18 +28,43 @@ public class SQLiteWordServer implements WordServer {
     private int deleteBatchCount = 0;
 
     public SQLiteWordServer(Path databasePath) throws SQLException {
-        SQLiteConfig config = new SQLiteConfig();
+        connect(databasePath);
+    }
 
-        config.setPageSize(4096);
-        config.setCacheSize(4096);
-        config.setJournalMode(SQLiteConfig.JournalMode.OFF);
-        config.setSynchronous(SQLiteConfig.SynchronousMode.OFF);
-        config.setLockingMode(SQLiteConfig.LockingMode.EXCLUSIVE);
-        config.setTempStore(SQLiteConfig.TempStore.MEMORY);
+    public void connect(Path databasePath) {
+        try {
+            SQLiteConfig config = new SQLiteConfig();
 
-        this.connection = config.createConnection("jdbc:sqlite:" + databasePath);
+            config.setPageSize(4096);
+            config.setCacheSize(4096);
+            config.setJournalMode(SQLiteConfig.JournalMode.OFF);
+            config.setSynchronous(SQLiteConfig.SynchronousMode.OFF);
+            config.setLockingMode(SQLiteConfig.LockingMode.EXCLUSIVE);
+            config.setTempStore(SQLiteConfig.TempStore.MEMORY);
 
-        prepareStatements();
+            this.connection = config.createConnection("jdbc:sqlite:" + databasePath);
+
+            prepareStatements();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+    }
+
+    public void disconnect() {
+        try {
+            this.insertWordStmt.executeBatch();
+            this.deleteWordStmt.executeBatch();
+        } catch (SQLException exception) {
+            exception.printStackTrace();
+        }
+
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (Exception exception) {
+            System.err.println(exception.getClass().getName() + ": " + exception.getMessage());
+        }
     }
 
     @Override
