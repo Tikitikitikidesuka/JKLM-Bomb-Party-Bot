@@ -20,8 +20,9 @@ public class SQLiteExample {
 
         try {
             wordServer.insertWord("A");
+            //throw new WordAlreadyInDatabaseException("HELLO");
         } catch (WordAlreadyInDatabaseException exception) {
-            System.out.println(exception.getWord());
+            System.out.println(exception.getMessage());
         } catch (ConnectionException exception) {
             System.out.println(exception.getMessage());
         }
