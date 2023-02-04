@@ -67,6 +67,8 @@ public class SQLiteWordServer implements WordServer {
 
     @Override
     public void insertWords(List<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
+        // No WordsAlreadyInDatabaseExceptions will be thrown. Please fix.
+
         List<String> duplicateWords = new ArrayList<>();
 
         try {
@@ -93,6 +95,8 @@ public class SQLiteWordServer implements WordServer {
 
     @Override
     public void deleteWords(List<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
+        // No WordsNotInDatabaseExceptions will be thrown. Please fix.
+
         List<String> missingWords = new ArrayList<>();
 
         try {
@@ -256,7 +260,7 @@ public class SQLiteWordServer implements WordServer {
 
     private void prepareUseWordStmt() throws SQLException {
         this.useWordStmt = this.connection.prepareStatement("""
-            INSERT INTO used (wordId)
+            INSERT OR IGNORE INTO used (wordId)
             VALUES (?)
         """);
     }
