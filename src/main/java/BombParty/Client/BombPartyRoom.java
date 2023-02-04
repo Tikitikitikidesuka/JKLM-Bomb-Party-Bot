@@ -1,12 +1,13 @@
 package BombParty.Client;
 
+import java.util.Collection;
+
 public interface BombPartyRoom {
     String getId();
 
     void joinRound();
-    boolean waitTurn();
+    boolean waitTurn(Collection<Character> missingLetters);
     String getSyllable();
-    String getLetters();
     void typeWord(String word);
     void playWord(String word) throws InvalidWordPlayedException;
 

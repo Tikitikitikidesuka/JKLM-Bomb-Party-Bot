@@ -5,10 +5,15 @@ import BombParty.Client.InvalidWordPlayedException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 class SeleniumBombPartyRoom implements BombPartyRoom {
     private String id = null;
     private WebDriver webDriver = null;
     private JavascriptExecutor js = null;
+    private String missingLetters = null;
     private boolean waitTurnInitialized = false;
 
     public SeleniumBombPartyRoom(WebDriver webDriver, String id) {
@@ -28,7 +33,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
     }
 
     @Override
-    public boolean waitTurn() {
+    public boolean waitTurn(Collection<Character> missingLetters) {
         if (!this.waitTurnInitialized) {
             this.js.executeScript("""
                round_render = (function() {
@@ -60,7 +65,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
             return true;
 
         // Wait if it is not
-        return (boolean) this.js.executeAsyncScript("""
+        boolean turn =  (boolean) this.js.executeAsyncScript("""
                 function selfTurnInjectionCallback(event) {
                     window.removeEventListener("selfTurn", selfTurnInjectionCallback);
                     callback(event.detail.valid);
@@ -69,16 +74,30 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
                 var callback = arguments[arguments.length - 1];                
                 window.addEventListener("selfTurn", selfTurnInjectionCallback);
                 """);
+
+        String alphabet = ((String) this.js.executeScript("" +
+                "return milestone.dictionaryManifest.bonusAlphabet"))
+                .trim().toUpperCase();
+        String playedLetters = ((Collection<String>) this.js.executeScript("" +
+                "return milestone.playerStatesByPeerId[milestone.currentPlayerPeerId].bonusLetters"))
+                .stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining())
+                .trim()
+                .toUpperCase();
+
+        missingLetters.clear();
+        for (Character c : alphabet.toCharArray()) {
+            if (!playedLetters.contains(String.valueOf(c)))
+                missingLetters.add(c);
+        }
+
+        return turn;
     }
 
     @Override
     public String getSyllable() {
         return (String) this.js.executeScript("return milestone.syllable");
-    }
-
-    @Override
-    public String getLetters() {
-        return null;
     }
 
     @Override
