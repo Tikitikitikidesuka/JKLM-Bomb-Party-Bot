@@ -3,7 +3,7 @@ package BombParty.Client;
 public interface BombPartyRoom {
     String getId();
 
-    void join();
+    void joinRound();
     boolean waitTurn();
     String getSyllable();
     void typeWord(String word);
