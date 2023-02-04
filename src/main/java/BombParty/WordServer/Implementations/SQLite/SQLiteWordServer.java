@@ -5,10 +5,7 @@ import org.sqlite.Function;
 import org.sqlite.SQLiteConfig;
 
 import java.nio.file.Path;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Connection;
+import java.sql.*;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +34,8 @@ public class SQLiteWordServer implements WordServer {
 
             this.connection = config.createConnection("jdbc:sqlite:" + databasePath);
 
-            prepareStatements();
+            this.ensureDatabase();
+            this.prepareStatements();
         } catch (SQLException exception) {
             throw new ConnectionException();
         }
@@ -63,7 +61,7 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void insertWord(String word) throws WordAlreadyInDatabaseException {
+    public void insertWord(String word) throws WordAlreadyInDatabaseException, ConnectionException {
         try {
             this.findWordStmt.clearParameters();
             this.findWordStmt.setString(1, word);
@@ -87,7 +85,7 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void deleteWord(String word) throws WordNotInDatabaseException {
+    public void deleteWord(String word) throws WordNotInDatabaseException, ConnectionException {
         try {
             this.findWordStmt.clearParameters();
             this.findWordStmt.setString(1, word);
@@ -111,22 +109,61 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public String getWordContaining(String syllable) throws NoMatchingWordException {
-        return null;
+    public String getWordContaining(String syllable) throws NoMatchingWordException, ConnectionException {
+        String word;
+
+        try {
+            this.getWordBySyllableStmt.setString(1, String.format("%%%s%%", syllable));
+            ResultSet results = this.getWordBySyllableStmt.executeQuery();
+            if (results.next()) {
+                word = results.getString("word");
+            } else {
+                throw new NoMatchingWordException();
+            }
+        } catch (SQLException exception) {
+            throw new ConnectionException();
+        }
+
+        return word;
     }
 
     @Override
-    public String getWordContaining(String syllable, Collection<Character> letters) throws NoMatchingWordException {
-        return null;
+    public String getWordContaining(String syllable, String letters) throws NoMatchingWordException, ConnectionException {
+        String word;
+
+        try {
+            this.getWordBySyllableAndLettersStmt.setString(1, String.format("%%%s%%", syllable));
+            this.getWordBySyllableAndLettersStmt.setString(2, letters);
+            ResultSet results = this.getWordBySyllableAndLettersStmt.executeQuery();
+            if (results.next()) {
+                word = results.getString("word");
+            } else {
+                throw new NoMatchingWordException();
+            }
+        } catch (SQLException exception) {
+            throw new ConnectionException();
+        }
+
+        return word;
+    }
+
+    private void ensureDatabase() throws SQLException {
+        Statement createStmt = connection.createStatement();
+        createStmt.executeUpdate("""
+            CREATE TABLE IF NOT EXISTS words(
+                word TEXT UNIQUE NOT NULL,
+                uniqueChars INT NOT NULL,
+                used BOOLEAN NOT NULL)
+        """);
     }
 
     private void prepareStatements() throws SQLException {
-        prepareGetWordBySyllableStmt();
-        prepareGetWordBySyllableAndLettersStmt();
-        prepareInsertWordStmt();
-        prepareInsertWordStmt();
-        prepareDeleteWordStmt();
-        prepareFindWordStmt();
+        this.prepareGetWordBySyllableStmt();
+        this.prepareGetWordBySyllableAndLettersStmt();
+        this.prepareInsertWordStmt();
+        this.prepareInsertWordStmt();
+        this.prepareDeleteWordStmt();
+        this.prepareFindWordStmt();
     }
 
     private void prepareGetWordBySyllableStmt() throws SQLException {
@@ -149,7 +186,7 @@ public class SQLiteWordServer implements WordServer {
 
                     Set<Character> letterSet = new HashSet<>();
                     for (int i = 0; i < letters.length(); ++i)
-                        letterSet.add(word.charAt(i));
+                        letterSet.add(letters.charAt(i));
 
                     int matches = 0;
                     for (int i = 0; i < word.length(); ++i) {
@@ -159,7 +196,6 @@ public class SQLiteWordServer implements WordServer {
                             ++matches;
                         }
                     }
-
 
                     result(matches);
                 } catch (SQLException exception) {

@@ -9,5 +9,5 @@ public interface WordServer {
     void insertWord(String word) throws WordAlreadyInDatabaseException, ConnectionException;
     void deleteWord(String word) throws WordNotInDatabaseException, ConnectionException;
     String getWordContaining(String syllable) throws NoMatchingWordException, ConnectionException;
-    String getWordContaining(String syllable, Collection<Character> letters) throws NoMatchingWordException, ConnectionException;
+    String getWordContaining(String syllable, String letters) throws NoMatchingWordException, ConnectionException;
 }

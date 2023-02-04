@@ -1,15 +1,22 @@
 package BombParty;
 
+import BombParty.WordServer.Implementations.SQLite.SQLiteWordServer;
+import BombParty.WordServer.WordServer;
 import org.sqlite.SQLiteConfig;
 
+import java.nio.file.Paths;
 import java.sql.*;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class SQLiteExample {
-    public static void main(String[] args) {
-        dictionary();
+    public static void main(String[] args) throws SQLException {
+        WordServer wordServer = new SQLiteWordServer();
+        wordServer.connect(Paths.get("words.db"));
+        //wordServer.insertWord("asdf");
+        System.out.println(wordServer.getWordContaining("as", "xd"));
+        //wordServer.disconnect();
     }
 
     public static void dictionary() {
