@@ -23,11 +23,11 @@ public class BombPartyBot {
     public BombPartyBot(BotConfig config) {
         this.config = config;
         this.client = new SeleniumBombPartyClient(
-                "webdriver.chrome.driver",
-                Paths.get("driver/chromedriver.exe")); // Change later in config
+                config.getDriver(),
+                config.getDriverPath());
         this.room = null;
         this.wordServer = new SQLiteWordServer();
-        this.wordServer.connect(Paths.get("words.db")); // Change later in config
+        this.wordServer.connect(config.getDbPath());
     }
 
     public void joinRoom(String roomCode) throws ConnectionException {
@@ -42,28 +42,30 @@ public class BombPartyBot {
         this.room.exit();
     }
 
-    public void playRound() {
-        Collection<Character> letters = new ArrayList<>();
-        while (this.room.waitTurn(letters)) {
-            String syllable = this.room.getSyllable();
-            String word = this.wordServer.getWordContaining(syllable, letters);
-            animateTypeWord(word);
-            try {
-                this.room.playWord(word);
-            } catch (InvalidWordPlayedException invalidWord) {
-                this.wordServer.deleteWord(word);
+    public void playRound() throws InterruptedException {
+        Collection<Character> missingLetters = new ArrayList<>();
+        while (this.room.waitTurn(missingLetters)) {
+            boolean validWord = false;
+            while (!validWord) {
+                String syllable = this.room.getSyllable();
+                String word = this.wordServer.getWordContaining(syllable, missingLetters);
+                try {
+                    animateTypeWord(word);
+                    this.room.playWord(word);
+                } catch (InvalidWordPlayedException invalidWord) {
+                    validWord = false;
+                    this.wordServer.deleteWord(word);
+                }
+                Thread.sleep(400);
             }
         }
     }
 
-    private void animateTypeWord(String word) {
+    private void animateTypeWord(String word) throws InterruptedException{
         Random random = new Random(System.currentTimeMillis());
         for(int i = 1; i < word.length(); i++) {
             this.room.typeWord(word.substring(0, i));
-            try {
-                wait(this.config.getMinTypingIntervalMs()
-                        + random.nextLong()%this.config.getMaxTypingIntervalMs());
-            } catch (InterruptedException ignored) {}
+            Thread.sleep(200);
         }
     }
 

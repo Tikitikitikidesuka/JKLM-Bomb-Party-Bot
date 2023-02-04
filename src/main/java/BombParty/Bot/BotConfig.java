@@ -9,11 +9,11 @@ public class BotConfig {
     private long minTypingIntervalMs;
     private long maxTypingIntervalMs;
 
-    public BotConfig(String driver, Path driverPath, Path dbPath, long typingInterval, long maxTypingIntervalDeviation) {
+    public BotConfig(String driver, Path driverPath, Path dbPath, long minTypingInterval, long maxTypingIntervalDeviation) {
         this.driver = driver;
         this.driverPath = driverPath;
         this.dbPath = dbPath;
-        this.minTypingIntervalMs = typingInterval;
+        this.minTypingIntervalMs = minTypingInterval;
         this.maxTypingIntervalMs = maxTypingIntervalDeviation;
     }
 
