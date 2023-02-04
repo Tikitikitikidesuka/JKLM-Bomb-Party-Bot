@@ -7,19 +7,24 @@ import BombParty.Client.InvalidWordPlayedException;
 import BombParty.WordServer.ConnectionException;
 import BombParty.WordServer.Implementations.SQLite.SQLiteWordServer;
 import BombParty.WordServer.WordServer;
-
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Random;
 
 public class BombPartyBot {
 
-    private BombPartyClient client;
+    private final BombPartyClient client;
     private BombPartyRoom room;
-    private WordServer wordServer;
+    private final WordServer wordServer;
+    private final BotConfig config;
 
-    public BombPartyBot() {
+    public BombPartyBot(BotConfig config) {
+        this.config = config;
         this.client = new SeleniumBombPartyClient(
                 "webdriver.chrome.driver",
-                "driver/chromedriver.exe"); // Change later in config
+                Paths.get("driver/chromedriver.exe")); // Change later in config
         this.room = null;
         this.wordServer = new SQLiteWordServer();
         this.wordServer.connect(Paths.get("words.db")); // Change later in config
@@ -38,16 +43,31 @@ public class BombPartyBot {
     }
 
     public void playRound() {
-        while (this.room.waitTurn()) {
+        Collection<Character> letters = new ArrayList<>();
+        while (this.room.waitTurn(letters)) {
+            String syllable = this.room.getSyllable();
+            String word = this.wordServer.getWordContaining(syllable, letters);
+            animateTypeWord(word);
             try {
-                String syllable = this.room.getSyllable();
-                // We need to get the letters
-                String word = this.wordServer.getWordContaining(syllable);
-                this.room.typeWord(word); // Can be deactivated by SPOOKY_MODE = ON
                 this.room.playWord(word);
             } catch (InvalidWordPlayedException invalidWord) {
-
+                this.wordServer.deleteWord(word);
             }
         }
+    }
+
+    private void animateTypeWord(String word) {
+        Random random = new Random(System.currentTimeMillis());
+        for(int i = 1; i < word.length(); i++) {
+            this.room.typeWord(word.substring(0, i));
+            try {
+                wait(this.config.getMinTypingIntervalMs()
+                        + random.nextLong()%this.config.getMaxTypingIntervalMs());
+            } catch (InterruptedException ignored) {}
+        }
+    }
+
+    public BotConfig getConfig() {
+        return config;
     }
 }
