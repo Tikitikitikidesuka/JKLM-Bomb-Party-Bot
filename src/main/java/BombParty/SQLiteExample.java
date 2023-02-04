@@ -1,6 +1,8 @@
 package BombParty;
 
+import BombParty.WordServer.ConnectionException;
 import BombParty.WordServer.Implementations.SQLite.SQLiteWordServer;
+import BombParty.WordServer.WordAlreadyInDatabaseException;
 import BombParty.WordServer.WordServer;
 import org.sqlite.SQLiteConfig;
 
@@ -12,12 +14,20 @@ import java.util.Scanner;
 
 public class SQLiteExample {
     public static void main(String[] args) throws SQLException {
-        dictionary();
-       /* WordServer wordServer = new SQLiteWordServer();
+        //dictionary();
+        WordServer wordServer = new SQLiteWordServer();
         wordServer.connect(Paths.get("words.db"));
-        //wordServer.insertWord("asdf");
-        System.out.println(wordServer.getWordContaining("as", "xd"));
-        //wordServer.disconnect();*/
+
+        try {
+            wordServer.insertWord("A");
+        } catch (WordAlreadyInDatabaseException exception) {
+            System.out.println(exception.getWord());
+        } catch (ConnectionException exception) {
+            System.out.println(exception.getMessage());
+        }
+
+        System.out.println(wordServer.getWordContaining("as", "xdf"));
+        wordServer.disconnect();
     }
 
     public static void dictionary() {

@@ -121,6 +121,8 @@ public class SQLiteWordServer implements WordServer {
     public String getWordContaining(String syllable) throws NoMatchingWordException, ConnectionException {
         String word;
 
+        syllable = syllable.trim().toUpperCase();
+
         try {
             this.getWordBySyllableStmt.setString(1, String.format("%%%s%%", syllable));
             ResultSet results = this.getWordBySyllableStmt.executeQuery();
@@ -143,6 +145,9 @@ public class SQLiteWordServer implements WordServer {
     @Override
     public String getWordContaining(String syllable, String letters) throws NoMatchingWordException, ConnectionException {
         String word;
+
+        syllable = syllable.trim().toUpperCase();
+        letters = letters.trim().toUpperCase();
 
         try {
             this.getWordBySyllableAndLettersStmt.setString(1, String.format("%%%s%%", syllable));
