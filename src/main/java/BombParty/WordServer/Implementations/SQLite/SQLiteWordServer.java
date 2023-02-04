@@ -6,9 +6,7 @@ import org.sqlite.SQLiteConfig;
 
 import java.nio.file.Path;
 import java.sql.*;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class SQLiteWordServer implements WordServer {
     private Connection connection;
@@ -42,16 +40,6 @@ public class SQLiteWordServer implements WordServer {
     }
 
     public void disconnect() throws ConnectionException {
-        // Haría un método que sea insertar conjunto de palabras para poder quitar este
-        // código de disconnect, que viola su responsabilidad única y hace que pueda tirar
-        // WordAlreadyInDatabaseException y WordNotInDatabaseException
-        try {
-            this.insertWordStmt.executeBatch();
-            this.deleteWordStmt.executeBatch();
-        } catch (SQLException exception) {
-            throw new ConnectionException();
-        }
-
         try {
             if (connection != null)
                 connection.close();
@@ -63,18 +51,14 @@ public class SQLiteWordServer implements WordServer {
     @Override
     public void insertWord(String word) throws WordAlreadyInDatabaseException, ConnectionException {
         try {
-            this.findWordStmt.clearParameters();
+            word = word.trim().toUpperCase();
             this.findWordStmt.setString(1, word);
             ResultSet result = this.findWordStmt.executeQuery();
 
             // If the word is not in the database
             if(!result.getBoolean("found")) {
-                this.insertWordStmt.clearParameters();
-                this.insertWordStmt.setString(1, word.trim().toUpperCase());
-                this.insertWordStmt.addBatch();
-                this.insertBatchCount++;
-                if(this.insertBatchCount %1000 == 0)
-                    this.insertWordStmt.executeBatch();
+                this.insertWordStmt.setString(1, word);
+                this.insertWordStmt.executeUpdate();
             }
             else // The word is in the database
                 throw new WordAlreadyInDatabaseException(word);
@@ -87,18 +71,15 @@ public class SQLiteWordServer implements WordServer {
     @Override
     public void deleteWord(String word) throws WordNotInDatabaseException, ConnectionException {
         try {
+            word = word.trim().toUpperCase();
             this.findWordStmt.clearParameters();
             this.findWordStmt.setString(1, word);
             ResultSet result = this.findWordStmt.executeQuery();
 
             // If the word is in the database
             if(result.getBoolean("found")) {
-                this.deleteWordStmt.clearParameters();
-                this.deleteWordStmt.setString(1, word.trim().toUpperCase());
-                this.deleteWordStmt.addBatch();
-                this.deleteBatchCount++;
-                if(this.deleteBatchCount %1000 == 0)
-                    this.deleteWordStmt.executeBatch();
+                this.deleteWordStmt.setString(1, word);
+                this.deleteWordStmt.executeBatch();
             }
             else // The word is not in the database
                 throw new WordNotInDatabaseException(word);
@@ -110,12 +91,52 @@ public class SQLiteWordServer implements WordServer {
 
     @Override
     public void insertWords(Collection<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
+        List<String> duplicateWords = new ArrayList<>();
+        try {
+            for (String word : words) {
+                word = word.trim().toUpperCase();
+                this.findWordStmt.setString(1, word);
+                ResultSet result = this.findWordStmt.executeQuery();
 
+                if(!result.getBoolean("found")) {
+                    this.insertWordStmt.setString(1, word);
+                    this.insertWordStmt.addBatch();
+                } else
+                    duplicateWords.add(word);
+            }
+            this.insertWordStmt.executeBatch();
+            this.insertWordStmt.clearBatch();
+            if (!duplicateWords.isEmpty())
+                throw new WordsAlreadyInDatabaseException(duplicateWords);
+
+        } catch (SQLException exception) {
+            throw new ConnectionException();
+        }
     }
 
     @Override
     public void deleteWords(Collection<String> words) throws WordsNotInDatabaseException, ConnectionException {
+        List<String> missingWords = new ArrayList<>();
+        try {
+            for (String word : words) {
+                word = word.trim().toUpperCase();
+                this.findWordStmt.setString(1, word);
+                ResultSet result = this.findWordStmt.executeQuery();
 
+                if(result.getBoolean("found")) {
+                    this.deleteWordStmt.setString(1, word);
+                    this.deleteWordStmt.addBatch();
+                } else
+                    missingWords.add(word);
+            }
+            this.deleteWordStmt.executeBatch();
+            this.deleteWordStmt.clearBatch();
+            if (!missingWords.isEmpty())
+                throw new WordsNotInDatabaseException(missingWords);
+
+        } catch (SQLException exception) {
+            throw new ConnectionException();
+        }
     }
 
     @Override
