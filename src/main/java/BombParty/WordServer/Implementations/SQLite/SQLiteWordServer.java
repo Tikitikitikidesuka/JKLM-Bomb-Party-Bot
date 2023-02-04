@@ -109,6 +109,16 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
+    public void insertWords(Collection<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
+
+    }
+
+    @Override
+    public void deleteWords(Collection<String> words) throws WordsNotInDatabaseException, ConnectionException {
+
+    }
+
+    @Override
     public String getWordContaining(String syllable) throws NoMatchingWordException, ConnectionException {
         String word;
 
