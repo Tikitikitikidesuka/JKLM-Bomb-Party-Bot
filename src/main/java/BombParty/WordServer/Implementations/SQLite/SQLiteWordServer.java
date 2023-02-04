@@ -7,6 +7,7 @@ import org.sqlite.SQLiteConfig;
 import java.nio.file.Path;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SQLiteWordServer implements WordServer {
     private Connection connection;
@@ -159,15 +160,18 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public String getWordContaining(String syllable, String letters) throws NoMatchingWordException, ConnectionException {
+    public String getWordContaining(String syllable, Collection<Character> letters) throws NoMatchingWordException, ConnectionException {
         String word;
 
         syllable = syllable.trim().toUpperCase();
-        letters = letters.trim().toUpperCase();
+        String lettersString = letters.stream().
+                map(String::valueOf).
+                collect(Collectors.joining()).
+                trim().toUpperCase();
 
         try {
             this.getWordBySyllableAndLettersStmt.setString(1, String.format("%%%s%%", syllable));
-            this.getWordBySyllableAndLettersStmt.setString(2, letters);
+            this.getWordBySyllableAndLettersStmt.setString(2, lettersString);
             ResultSet results = this.getWordBySyllableAndLettersStmt.executeQuery();
             if (results.next()) {
                 word = results.getString("word");
