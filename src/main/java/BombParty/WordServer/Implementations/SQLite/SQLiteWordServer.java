@@ -13,7 +13,8 @@ public class SQLiteWordServer implements WordServer {
     private PreparedStatement getWordBySyllableStmt,
             getWordBySyllableAndLettersStmt,
             insertWordStmt,
-            deleteWordStmt;
+            deleteWordStmt,
+            useWordStmt;
 
     @Override
     public void connect(Path databasePath) throws ConnectionException {
@@ -128,6 +129,10 @@ public class SQLiteWordServer implements WordServer {
             } else {
                 throw new NoMatchingWordException();
             }
+
+            this.useWordStmt.setInt(1, results.getInt("id"));
+            this.useWordStmt.executeUpdate();
+
         } catch (SQLException exception) {
             throw new ConnectionException();
         }
@@ -148,6 +153,10 @@ public class SQLiteWordServer implements WordServer {
             } else {
                 throw new NoMatchingWordException();
             }
+
+            this.useWordStmt.setInt(1, results.getInt("id"));
+            this.useWordStmt.executeUpdate();
+
         } catch (SQLException exception) {
             throw new ConnectionException();
         }
@@ -161,6 +170,13 @@ public class SQLiteWordServer implements WordServer {
             CREATE TABLE IF NOT EXISTS words(
                 word TEXT UNIQUE NOT NULL)
         """);
+        createStmt.executeUpdate("""
+            CREATE TEMPORARY TABLE used(
+                wordId INTEGER,
+                FOREIGN KEY (wordId)
+                REFERENCES words (id)
+                ON DELETE CASCADE)
+        """);
     }
 
     private void prepareStatements() throws SQLException {
@@ -168,13 +184,15 @@ public class SQLiteWordServer implements WordServer {
         this.prepareGetWordBySyllableAndLettersStmt();
         this.prepareInsertWordStmt();
         this.prepareDeleteWordStmt();
+        this.prepareUseWordStmt();
     }
 
     private void prepareGetWordBySyllableStmt() throws SQLException {
         this.getWordBySyllableStmt = this.connection.prepareStatement("""
-            SELECT word
+            SELECT word, id
             FROM words
             WHERE word LIKE ?
+            AND id NOT IN (SELECT wordId FROM used)
             LIMIT 1
         """);
     }
@@ -208,9 +226,10 @@ public class SQLiteWordServer implements WordServer {
         });
 
         this.getWordBySyllableAndLettersStmt = this.connection.prepareStatement("""
-            SELECT word
+            SELECT word, id
             FROM words
             WHERE word LIKE ?
+            AND id NOT IN (SELECT wordId FROM used)
             ORDER BY numberOfGivenLettersInWord(word, ?) DESC
             LIMIT 1
         """);
@@ -227,6 +246,13 @@ public class SQLiteWordServer implements WordServer {
         this.deleteWordStmt = this.connection.prepareStatement("""
             DELETE FROM words
             WHERE word = ?
+        """);
+    }
+
+    private void prepareUseWordStmt() throws SQLException {
+        this.useWordStmt = this.connection.prepareStatement("""
+            INSERT INTO used (wordId)
+            VALUES (?)
         """);
     }
 }
