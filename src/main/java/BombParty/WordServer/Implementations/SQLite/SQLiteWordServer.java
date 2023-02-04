@@ -159,9 +159,7 @@ public class SQLiteWordServer implements WordServer {
         Statement createStmt = connection.createStatement();
         createStmt.executeUpdate("""
             CREATE TABLE IF NOT EXISTS words(
-                word TEXT UNIQUE NOT NULL,
-                uniqueChars INT NOT NULL,
-                used BOOLEAN NOT NULL)
+                word TEXT UNIQUE NOT NULL)
         """);
     }
 
@@ -176,8 +174,7 @@ public class SQLiteWordServer implements WordServer {
         this.getWordBySyllableStmt = this.connection.prepareStatement("""
             SELECT word
             FROM words
-            WHERE word LIKE ? AND NOT used
-            ORDER BY uniqueChars DESC
+            WHERE word LIKE ?
             LIMIT 1
         """);
     }
@@ -213,7 +210,7 @@ public class SQLiteWordServer implements WordServer {
         this.getWordBySyllableAndLettersStmt = this.connection.prepareStatement("""
             SELECT word
             FROM words
-            WHERE word LIKE ? AND NOT used
+            WHERE word LIKE ?
             ORDER BY numberOfGivenLettersInWord(word, ?) DESC
             LIMIT 1
         """);
