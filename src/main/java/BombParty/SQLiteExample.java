@@ -37,6 +37,7 @@ public class SQLiteExample {
             Statement statement = connection.createStatement();
             statement.executeUpdate("""
                                         CREATE TABLE IF NOT EXISTS words(
+                                            id INTEGER PRIMARY KEY,
                                             word TEXT UNIQUE NOT NULL)
                                         """);
                                         /*

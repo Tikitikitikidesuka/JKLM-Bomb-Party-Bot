@@ -12,8 +12,8 @@ public class SQLiteWordServer implements WordServer {
     private Connection connection;
     private PreparedStatement getWordBySyllableStmt,
             getWordBySyllableAndLettersStmt,
-            insertWordsStmt,
-            deleteWordsStmt;
+            insertWordStmt,
+            deleteWordStmt;
 
     @Override
     public void connect(Path databasePath) throws ConnectionException {
@@ -71,11 +71,11 @@ public class SQLiteWordServer implements WordServer {
         try {
             for (String word : words) {
                 word = word.trim().toUpperCase();
-                this.insertWordsStmt.setString(1, word);
-                this.insertWordsStmt.addBatch();
+                this.insertWordStmt.setString(1, word);
+                this.insertWordStmt.addBatch();
             }
 
-            int[] insertCounts = this.insertWordsStmt.executeBatch();
+            int[] insertCounts = this.insertWordStmt.executeBatch();
 
             for(int i = 0; i < insertCounts.length; i++) {
                 if(insertCounts[i] == Statement.EXECUTE_FAILED)
@@ -97,11 +97,11 @@ public class SQLiteWordServer implements WordServer {
         try {
             for (String word : words) {
                 word = word.trim().toUpperCase();
-                this.deleteWordsStmt.setString(1, word);
-                this.deleteWordsStmt.addBatch();
+                this.deleteWordStmt.setString(1, word);
+                this.deleteWordStmt.addBatch();
             }
 
-            int[] deleteCounts = this.deleteWordsStmt.executeBatch();
+            int[] deleteCounts = this.deleteWordStmt.executeBatch();
 
             for(int i = 0; i < deleteCounts.length; i++) {
                 if(deleteCounts[i] == Statement.EXECUTE_FAILED)
@@ -166,8 +166,8 @@ public class SQLiteWordServer implements WordServer {
     private void prepareStatements() throws SQLException {
         this.prepareGetWordBySyllableStmt();
         this.prepareGetWordBySyllableAndLettersStmt();
-        this.prepareInsertWordsStmt();
-        this.prepareDeleteWordsStmt();
+        this.prepareInsertWordStmt();
+        this.prepareDeleteWordStmt();
     }
 
     private void prepareGetWordBySyllableStmt() throws SQLException {
@@ -216,15 +216,15 @@ public class SQLiteWordServer implements WordServer {
         """);
     }
 
-    private void prepareInsertWordsStmt() throws SQLException {
-        this.insertWordsStmt = this.connection.prepareStatement("""
+    private void prepareInsertWordStmt() throws SQLException {
+        this.insertWordStmt = this.connection.prepareStatement("""
             INSERT OR IGNORE INTO words (word)
             VALUES (?)
         """);
     }
 
-    private void prepareDeleteWordsStmt() throws SQLException {
-        this.deleteWordsStmt = this.connection.prepareStatement("""
+    private void prepareDeleteWordStmt() throws SQLException {
+        this.deleteWordStmt = this.connection.prepareStatement("""
             DELETE FROM words
             WHERE word = ?
         """);
