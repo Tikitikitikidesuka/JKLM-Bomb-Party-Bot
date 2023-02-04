@@ -2,14 +2,14 @@ package BombParty.Bot;
 
 import java.nio.file.Path;
 
-public class BotConfig {
+public class BombPartyBotConfig {
     private final String driver;
     private final Path driverPath;
     private final Path dbPath;
     private long minTypingIntervalMs;
     private long maxTypingIntervalMs;
 
-    public BotConfig(String driver, Path driverPath, Path dbPath, long minTypingInterval, long maxTypingIntervalDeviation) {
+    public BombPartyBotConfig(String driver, Path driverPath, Path dbPath, long minTypingInterval, long maxTypingIntervalDeviation) {
         this.driver = driver;
         this.driverPath = driverPath;
         this.dbPath = dbPath;
