@@ -12,11 +12,12 @@ import java.util.Scanner;
 
 public class SQLiteExample {
     public static void main(String[] args) throws SQLException {
-        WordServer wordServer = new SQLiteWordServer();
+        dictionary();
+       /* WordServer wordServer = new SQLiteWordServer();
         wordServer.connect(Paths.get("words.db"));
         //wordServer.insertWord("asdf");
         System.out.println(wordServer.getWordContaining("as", "xd"));
-        //wordServer.disconnect();
+        //wordServer.disconnect();*/
     }
 
     public static void dictionary() {
@@ -36,14 +37,17 @@ public class SQLiteExample {
             Statement statement = connection.createStatement();
             statement.executeUpdate("""
                                         CREATE TABLE IF NOT EXISTS words(
-                                            word TEXT UNIQUE NOT NULL,
+                                            word TEXT UNIQUE NOT NULL)
+                                        """);
+                                        /*
+                                        ,
                                             uniqueChars INT NOT NULL,
                                             used BOOLEAN NOT NULL)
-                                        """);
+                                         */
 
             PreparedStatement pstmt = connection.prepareStatement("""
-                        INSERT INTO words (word, uniqueChars, used)
-                        VALUES (?, ?, FALSE)
+                        INSERT INTO words (word)
+                        VALUES (?)
                         """);
 
             File words = new File("words_alpha.txt");
@@ -54,7 +58,7 @@ public class SQLiteExample {
                 try {
                     pstmt.clearParameters();
                     pstmt.setString(1, word.trim().toUpperCase());
-                    pstmt.setInt(2, (int) word.chars().distinct().count());
+                    //pstmt.setInt(2, (int) word.chars().distinct().count());
                     pstmt.addBatch();
                     count++;
                     if(count%1000 == 0)

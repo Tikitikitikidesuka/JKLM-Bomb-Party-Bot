@@ -15,9 +15,9 @@ public class SQLiteWordServer implements WordServer {
     private PreparedStatement getWordBySyllableAndLettersStmt;
     private PreparedStatement insertWordStmt;
     private PreparedStatement deleteWordStmt;
+    private PreparedStatement insertWordsStmt;
+    private PreparedStatement deleteWordsStmt;
     private PreparedStatement findWordStmt;
-    private int insertBatchCount = 0;
-    private int deleteBatchCount = 0;
 
     public void connect(Path databasePath) throws ConnectionException {
         try {
@@ -90,23 +90,23 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void insertWords(Collection<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
+    public void insertWords(List<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
         List<String> duplicateWords = new ArrayList<>();
         try {
             for (String word : words) {
                 word = word.trim().toUpperCase();
-                this.findWordStmt.setString(1, word);
-                ResultSet result = this.findWordStmt.executeQuery();
-
-                if(!result.getBoolean("found")) {
-                    this.insertWordStmt.setString(1, word);
-                    this.insertWordStmt.addBatch();
-                } else
-                    duplicateWords.add(word);
+                this.insertWordsStmt.setString(1, word);
+                this.insertWordsStmt.addBatch();
             }
-            this.insertWordStmt.executeBatch();
-            this.insertWordStmt.clearBatch();
-            if (!duplicateWords.isEmpty())
+
+            int[] insertCounts = this.insertWordsStmt.executeBatch();
+
+            for(int i = 0; i < insertCounts.length; i++) {
+                if(insertCounts[i] == Statement.EXECUTE_FAILED)
+                    duplicateWords.add(words.get(i));
+            }
+
+            if(!duplicateWords.isEmpty())
                 throw new WordsAlreadyInDatabaseException(duplicateWords);
 
         } catch (SQLException exception) {
@@ -115,24 +115,24 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void deleteWords(Collection<String> words) throws WordsNotInDatabaseException, ConnectionException {
+    public void deleteWords(List<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
         List<String> missingWords = new ArrayList<>();
         try {
             for (String word : words) {
                 word = word.trim().toUpperCase();
-                this.findWordStmt.setString(1, word);
-                ResultSet result = this.findWordStmt.executeQuery();
-
-                if(result.getBoolean("found")) {
-                    this.deleteWordStmt.setString(1, word);
-                    this.deleteWordStmt.addBatch();
-                } else
-                    missingWords.add(word);
+                this.deleteWordsStmt.setString(1, word);
+                this.deleteWordsStmt.addBatch();
             }
-            this.deleteWordStmt.executeBatch();
-            this.deleteWordStmt.clearBatch();
-            if (!missingWords.isEmpty())
-                throw new WordsNotInDatabaseException(missingWords);
+
+            int[] deleteCounts = this.deleteWordsStmt.executeBatch();
+
+            for(int i = 0; i < deleteCounts.length; i++) {
+                if(deleteCounts[i] == Statement.EXECUTE_FAILED)
+                    missingWords.add(words.get(i));
+            }
+
+            if(!missingWords.isEmpty())
+                throw new WordsAlreadyInDatabaseException(missingWords);
 
         } catch (SQLException exception) {
             throw new ConnectionException();
@@ -194,6 +194,8 @@ public class SQLiteWordServer implements WordServer {
         this.prepareInsertWordStmt();
         this.prepareInsertWordStmt();
         this.prepareDeleteWordStmt();
+        prepareInsertWordsStmt();
+        prepareDeleteWordsStmt();
         this.prepareFindWordStmt();
     }
 
@@ -246,13 +248,27 @@ public class SQLiteWordServer implements WordServer {
 
     private void prepareInsertWordStmt() throws SQLException {
         this.insertWordStmt = this.connection.prepareStatement("""
-            INSERT INTO words (word, uniqueChars, used)
-            VALUES (?, ?, FALSE)
+            INSERT INTO words (word)
+            VALUES (?)
         """);
     }
 
     private void prepareDeleteWordStmt() throws SQLException {
         this.deleteWordStmt = this.connection.prepareStatement("""
+            DELETE FROM words
+            WHERE word = ?
+        """);
+    }
+
+    private void prepareInsertWordsStmt() throws SQLException {
+        this.insertWordsStmt = this.connection.prepareStatement("""
+            INSERT OR IGNORE INTO words (word)
+            VALUES (?)
+        """);
+    }
+
+    private void prepareDeleteWordsStmt() throws SQLException {
+        this.deleteWordsStmt = this.connection.prepareStatement("""
             DELETE FROM words
             WHERE word = ?
         """);
@@ -264,4 +280,5 @@ public class SQLiteWordServer implements WordServer {
             WHERE word = ?
         """);
     }
+
 }
