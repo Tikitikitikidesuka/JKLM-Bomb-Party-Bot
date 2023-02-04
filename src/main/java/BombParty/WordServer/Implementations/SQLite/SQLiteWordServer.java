@@ -33,7 +33,7 @@ public class SQLiteWordServer implements WordServer {
 
         this.connection = config.createConnection("jdbc:sqlite:" + databasePath);
 
-
+        prepareStatements();
     }
 
     @Override
@@ -95,7 +95,16 @@ public class SQLiteWordServer implements WordServer {
     }
 
     private void prepareStatements() {
-
+        try {
+            prepareGetWordBySyllableStmt();
+            prepareGetWordBySyllableAndLettersStmt();
+            prepareInsertWordStmt();
+            prepareInsertWordStmt();
+            prepareDeleteWordStmt();
+            prepareFindWordStmt();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private void prepareGetWordBySyllableStmt() throws SQLException {
