@@ -4,11 +4,17 @@ import BombParty.WordServer.NoMatchingWordException;
 import BombParty.WordServer.WordAlreadyInDatabaseException;
 import BombParty.WordServer.WordNotInDatabaseException;
 import BombParty.WordServer.WordServer;
+import org.sqlite.Function;
 import org.sqlite.SQLiteConfig;
 
 import java.nio.file.Path;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Connection;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SQLiteWordServer implements WordServer {
     private Connection connection;
@@ -114,17 +120,45 @@ public class SQLiteWordServer implements WordServer {
             WHERE word LIKE ? AND NOT used
             ORDER BY uniqueChars DESC
             LIMIT 1
-            """);
+        """);
     }
 
-    private void prepareGetWordBySyllableAndLettersStmt() throws SQLException{
+    private void prepareGetWordBySyllableAndLettersStmt() throws SQLException {
+        Function.create(this.connection, "numberOfGivenLettersInWord", new Function() {
+            @Override
+            protected void xFunc() {
+                try {
+                    final String word = value_text(0);
+                    final String letters = value_text(1);
+
+                    Set<Character> letterSet = new HashSet<>();
+                    for (int i = 0; i < letters.length(); ++i)
+                        letterSet.add(word.charAt(i));
+
+                    int matches = 0;
+                    for (int i = 0; i < word.length(); ++i) {
+                        Character character = word.charAt(i);
+                        if (letterSet.contains(character)) {
+                            letterSet.remove(character);
+                            ++matches;
+                        }
+                    }
+
+
+                    result(matches);
+                } catch (SQLException exception) {
+                    exception.printStackTrace();
+                }
+            }
+        });
+
         this.getWordBySyllableAndLettersStmt = this.connection.prepareStatement("""
             SELECT word
             FROM words
             WHERE word LIKE ? AND NOT used
-            ORDER BY uniqueChars DESC
+            ORDER BY numberOfGivenLettersInWord(word, ?) DESC
             LIMIT 1
-            """);
+        """);
     }
 
     private void prepareInsertWordStmt() throws SQLException {
