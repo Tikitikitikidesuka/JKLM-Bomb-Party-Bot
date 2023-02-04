@@ -6,6 +6,7 @@ public interface BombPartyRoom {
     void joinRound();
     boolean waitTurn();
     String getSyllable();
+    String getLetters();
     void typeWord(String word);
     void playWord(String word) throws InvalidWordPlayedException;
 

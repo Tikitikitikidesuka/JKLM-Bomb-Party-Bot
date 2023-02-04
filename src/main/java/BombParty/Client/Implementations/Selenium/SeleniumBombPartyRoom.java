@@ -77,6 +77,11 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
     }
 
     @Override
+    public String getLetters() {
+        return null;
+    }
+
+    @Override
     public void typeWord(String word) {
         this.js.executeScript("socket.emit(\"setWord\", \"" +  word + "\", false);");
     }
