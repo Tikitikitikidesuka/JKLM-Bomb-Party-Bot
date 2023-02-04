@@ -1,9 +1,6 @@
 package BombParty.WordServer.Implementations.SQLite;
 
-import BombParty.WordServer.NoMatchingWordException;
-import BombParty.WordServer.WordAlreadyInDatabaseException;
-import BombParty.WordServer.WordNotInDatabaseException;
-import BombParty.WordServer.WordServer;
+import BombParty.WordServer.*;
 import org.sqlite.Function;
 import org.sqlite.SQLiteConfig;
 
@@ -27,11 +24,7 @@ public class SQLiteWordServer implements WordServer {
     private int insertBatchCount = 0;
     private int deleteBatchCount = 0;
 
-    public SQLiteWordServer(Path databasePath) throws SQLException {
-        connect(databasePath);
-    }
-
-    public void connect(Path databasePath) {
+    public void connect(Path databasePath) throws ConnectionException {
         try {
             SQLiteConfig config = new SQLiteConfig();
 
@@ -46,24 +39,26 @@ public class SQLiteWordServer implements WordServer {
 
             prepareStatements();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            throw new ConnectionException();
         }
     }
 
-    public void disconnect() {
+    public void disconnect() throws ConnectionException {
+        // Haría un método que sea insertar conjunto de palabras para poder quitar este
+        // código de disconnect, que viola su responsabilidad única y hace que pueda tirar
+        // WordAlreadyInDatabaseException y WordNotInDatabaseException
         try {
             this.insertWordStmt.executeBatch();
             this.deleteWordStmt.executeBatch();
         } catch (SQLException exception) {
-            exception.printStackTrace();
+            throw new ConnectionException();
         }
 
         try {
-            if (connection != null) {
+            if (connection != null)
                 connection.close();
-            }
-        } catch (Exception exception) {
-            System.err.println(exception.getClass().getName() + ": " + exception.getMessage());
+        } catch (SQLException exception) {
+            throw new ConnectionException();
         }
     }
 
@@ -86,8 +81,8 @@ public class SQLiteWordServer implements WordServer {
             else // The word is in the database
                 throw new WordAlreadyInDatabaseException(word);
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException exception) {
+            throw new ConnectionException();
         }
     }
 
@@ -110,8 +105,8 @@ public class SQLiteWordServer implements WordServer {
             else // The word is not in the database
                 throw new WordNotInDatabaseException(word);
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException exception) {
+            throw new ConnectionException();
         }
     }
 
@@ -125,17 +120,13 @@ public class SQLiteWordServer implements WordServer {
         return null;
     }
 
-    private void prepareStatements() {
-        try {
-            prepareGetWordBySyllableStmt();
-            prepareGetWordBySyllableAndLettersStmt();
-            prepareInsertWordStmt();
-            prepareInsertWordStmt();
-            prepareDeleteWordStmt();
-            prepareFindWordStmt();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    private void prepareStatements() throws SQLException {
+        prepareGetWordBySyllableStmt();
+        prepareGetWordBySyllableAndLettersStmt();
+        prepareInsertWordStmt();
+        prepareInsertWordStmt();
+        prepareDeleteWordStmt();
+        prepareFindWordStmt();
     }
 
     private void prepareGetWordBySyllableStmt() throws SQLException {
@@ -190,20 +181,20 @@ public class SQLiteWordServer implements WordServer {
         this.insertWordStmt = this.connection.prepareStatement("""
             INSERT INTO words (word, uniqueChars, used)
             VALUES (?, ?, FALSE)
-            """);
+        """);
     }
 
     private void prepareDeleteWordStmt() throws SQLException {
         this.deleteWordStmt = this.connection.prepareStatement("""
             DELETE FROM words
             WHERE word = ?
-            """);
+        """);
     }
 
     private void prepareFindWordStmt() throws SQLException {
         this.findWordStmt = this.connection.prepareStatement("""
             SELECT COUNT(word) > 0 AS found FROM words
             WHERE word = ?
-            """);
+        """);
     }
 }
