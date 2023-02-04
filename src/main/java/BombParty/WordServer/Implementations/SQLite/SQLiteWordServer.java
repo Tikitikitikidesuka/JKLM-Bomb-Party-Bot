@@ -48,6 +48,18 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
+    public void clearUsed() throws ConnectionException {
+        try {
+            Statement createStmt = connection.createStatement();
+            createStmt.executeUpdate("""
+            DELETE FROM used
+        """);
+        } catch (SQLException exception) {
+            throw new ConnectionException();
+        }
+    }
+
+    @Override
     public void insertWord(String word) throws WordAlreadyInDatabaseException, ConnectionException {
         try {
             this.insertWords(Collections.singletonList(word));
