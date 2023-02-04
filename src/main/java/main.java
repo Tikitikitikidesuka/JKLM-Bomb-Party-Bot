@@ -11,7 +11,7 @@ public class main {
         BombPartyRoom room = bpClient.joinRoom("PYVU");
 
         while(true) {
-            room.join();
+            room.joinRound();
             while (room.waitTurn()) {
                 try {
                     room.playWord(room.getSyllable());
