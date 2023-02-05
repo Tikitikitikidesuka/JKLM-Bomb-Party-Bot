@@ -9,12 +9,12 @@ public class BombPartyBotConfig {
     private long minTypingIntervalMs;
     private long maxTypingIntervalMs;
 
-    public BombPartyBotConfig(String driver, Path driverPath, Path dbPath, long minTypingInterval, long maxTypingIntervalDeviation) {
+    public BombPartyBotConfig(String driver, Path driverPath, Path dbPath, long minTypingInterval, long maxTypingInterval) {
         this.driver = driver;
         this.driverPath = driverPath;
         this.dbPath = dbPath;
         this.minTypingIntervalMs = minTypingInterval;
-        this.maxTypingIntervalMs = maxTypingIntervalDeviation;
+        this.maxTypingIntervalMs = maxTypingInterval;
     }
 
     public String getDriver() {
