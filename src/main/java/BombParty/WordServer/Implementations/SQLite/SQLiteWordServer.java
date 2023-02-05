@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SQLiteWordServer implements WordServer {
+    private Path databasePath;
     private Connection connection;
     private PreparedStatement getWordBySyllableStmt,
             getWordBySyllableAndLettersStmt,
@@ -17,8 +18,12 @@ public class SQLiteWordServer implements WordServer {
             deleteWordStmt,
             useWordStmt;
 
+    public SQLiteWordServer(Path databasePath) {
+        this.databasePath = databasePath;
+    }
+
     @Override
-    public void connect(Path databasePath) throws ConnectionException {
+    public void connect() throws ConnectionException {
         try {
             SQLiteConfig config = new SQLiteConfig();
 
@@ -29,7 +34,7 @@ public class SQLiteWordServer implements WordServer {
             config.setLockingMode(SQLiteConfig.LockingMode.EXCLUSIVE);
             config.setTempStore(SQLiteConfig.TempStore.MEMORY);
 
-            this.connection = config.createConnection("jdbc:sqlite:" + databasePath);
+            this.connection = config.createConnection("jdbc:sqlite:" + this.databasePath);
 
             this.ensureDatabase();
             this.prepareStatements();

@@ -29,8 +29,8 @@ public class SQLiteWordLoader {
         String databasePath = args[1];
 
         try {
-            WordServer wordServer = new SQLiteWordServer();
-            wordServer.connect(Path.of(databasePath));
+            WordServer wordServer = new SQLiteWordServer(Path.of(databasePath));
+            wordServer.connect();
 
             try {
                 File wordFile = new File(wordFilePath);

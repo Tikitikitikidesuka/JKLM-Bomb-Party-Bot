@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.List;
 
 public interface WordServer {
-    void connect(Path databasePath) throws ConnectionException;
+    void connect() throws ConnectionException;
     void disconnect() throws ConnectionException;
     void clearUsed() throws ConnectionException;
     void insertWord(String word) throws ConnectionException;
