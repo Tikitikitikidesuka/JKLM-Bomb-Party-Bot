@@ -3,13 +3,11 @@ package BombParty.Client.Implementations.Selenium;
 import BombParty.Client.BombPartyRoom;
 import BombParty.Client.BombPartyTurnData;
 import BombParty.Client.InvalidWordPlayedException;
-import BombParty.Client.RoundEndException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 class SeleniumBombPartyRoom implements BombPartyRoom {
