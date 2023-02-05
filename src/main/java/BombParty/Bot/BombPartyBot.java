@@ -85,9 +85,7 @@ public class BombPartyBot {
             this.room.typeWord(word.substring(0, i));
 
             try {
-                long ms = getKeystrokeMilliseconds();
-                System.out.println(ms);
-                Thread.sleep(ms);
+                Thread.sleep(getKeystrokeMilliseconds());
             } catch (InterruptedException ignored) {}
         }
     }
