@@ -3,8 +3,10 @@ package BombParty.Bot;
 import BombParty.Bot.Config.BombPartyBotConfig;
 import BombParty.Client.*;
 import BombParty.Client.Implementations.Selenium.SeleniumBombPartyClient;
+import BombParty.Client.InvalidWordPlayedException;
 import BombParty.WordServer.ConnectionException;
 import BombParty.WordServer.Implementations.SQLite.SQLiteWordServer;
+import BombParty.WordServer.NoMatchingWordException;
 import BombParty.WordServer.WordServer;
 import java.util.Random;
 
@@ -16,21 +18,29 @@ public class BombPartyBot {
     private final BombPartyBotConfig config;
     private final Random rng;
 
-    public BombPartyBot(BombPartyBotConfig config) {
+    public BombPartyBot(BombPartyBotConfig config) throws WordServerConnectionException {
+        this.rng = new Random(System.currentTimeMillis());
         this.config = config;
         this.client = new SeleniumBombPartyClient(
                 config.getDriver(),
                 config.getDriverPath());
         this.room = null;
         this.wordServer = new SQLiteWordServer();
-        this.wordServer.connect(config.getDbPath());
-        this.rng = new Random(System.currentTimeMillis());
+        try {
+            this.wordServer.connect(config.getDbPath());
+        } catch (ConnectionException exception) {
+            throw new WordServerConnectionException();
+        }
     }
 
-    public void joinRoom(String roomCode) throws ConnectionException {
+    public void joinRoom(String roomCode) throws WordServerConnectionException {
         if(room != null) {
             exitRoom();
-            this.wordServer.clearUsed();
+            try {
+                this.wordServer.clearUsed();
+            } catch (ConnectionException exception) {
+                throw new WordServerConnectionException();
+            }
         }
         this.room = this.client.joinRoom(roomCode);
     }
@@ -39,28 +49,32 @@ public class BombPartyBot {
         this.room.exit();
     }
 
-    public void playRound() {
+    public void playRound() throws WordServerConnectionException {
         this.room.joinRound();
 
         BombPartyTurnData turnData;
         while ((turnData = this.room.waitTurn()) != null) {
-            boolean validWord = false;
-            while (!validWord) {
-                String playWord = this.wordServer.getWordContaining(
-                        turnData.getSyllable(), turnData.getMissingLetters());
+            try {
+                boolean validWord = false;
+                while (!validWord) {
+                    String playWord = this.wordServer.getWordContaining(
+                            turnData.getSyllable(), turnData.getMissingLetters());
 
-                try {
-                    this.animateTypeWord(playWord);
-                    this.room.playWord(playWord);
-                    validWord = true;
-                } catch (InvalidWordPlayedException invalidWord) {
-                    this.wordServer.deleteWord(playWord);
+                    try {
+                        this.animateTypeWord(playWord);
+                        this.room.playWord(playWord);
+                        validWord = true;
+                    } catch (InvalidWordPlayedException invalidWord) {
+                        this.wordServer.deleteWord(playWord);
+                    }
+
+                    try {
+                        Thread.sleep(getThinkMilliseconds());
+                    } catch (InterruptedException ignored) {}
                 }
-
-                try {
-                    Thread.sleep(getThinkMilliseconds());
-                } catch (InterruptedException ignored) {}
-            }
+            } catch (ConnectionException exception) {
+                throw new WordServerConnectionException();
+            } catch (NoMatchingWordException ignored) {} // Due to word database limitations
         }
     }
 

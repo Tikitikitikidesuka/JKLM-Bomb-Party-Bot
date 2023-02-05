@@ -61,29 +61,17 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void insertWord(String word) throws WordAlreadyInDatabaseException, ConnectionException {
-        try {
-            this.insertWords(Collections.singletonList(word));
-        } catch (WordsAlreadyInDatabaseException exception) {
-            throw new WordAlreadyInDatabaseException(exception.getWords().iterator().next());
-        }
+    public void insertWord(String word) throws ConnectionException {
+        this.insertWords(Collections.singletonList(word));
     }
 
     @Override
-    public void deleteWord(String word) throws WordNotInDatabaseException, ConnectionException {
-        try {
-            this.deleteWords(Collections.singletonList(word));
-        } catch (WordsAlreadyInDatabaseException exception) {
-            throw new WordNotInDatabaseException(exception.getWords().iterator().next());
-        }
+    public void deleteWord(String word) throws ConnectionException {
+        this.deleteWords(Collections.singletonList(word));
     }
 
     @Override
-    public void insertWords(List<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
-        // No WordsAlreadyInDatabaseExceptions will be thrown. Please fix.
-
-        List<String> duplicateWords = new ArrayList<>();
-
+    public void insertWords(List<String> words) throws ConnectionException {
         try {
             for (String word : words) {
                 word = word.trim().toUpperCase();
@@ -91,15 +79,7 @@ public class SQLiteWordServer implements WordServer {
                 this.insertWordStmt.addBatch();
             }
 
-            int[] insertCounts = this.insertWordStmt.executeBatch();
-
-            for(int i = 0; i < insertCounts.length; i++) {
-                if(insertCounts[i] == Statement.EXECUTE_FAILED)
-                    duplicateWords.add(words.get(i));
-            }
-
-            if(!duplicateWords.isEmpty())
-                throw new WordsAlreadyInDatabaseException(duplicateWords);
+            this.insertWordStmt.executeBatch();
 
         } catch (SQLException exception) {
             throw new ConnectionException();
@@ -107,11 +87,7 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void deleteWords(List<String> words) throws WordsAlreadyInDatabaseException, ConnectionException {
-        // No WordsNotInDatabaseExceptions will be thrown. Please fix.
-
-        List<String> missingWords = new ArrayList<>();
-
+    public void deleteWords(List<String> words) throws ConnectionException {
         try {
             for (String word : words) {
                 word = word.trim().toUpperCase();
@@ -119,15 +95,7 @@ public class SQLiteWordServer implements WordServer {
                 this.deleteWordStmt.addBatch();
             }
 
-            int[] deleteCounts = this.deleteWordStmt.executeBatch();
-
-            for(int i = 0; i < deleteCounts.length; i++) {
-                if(deleteCounts[i] == Statement.EXECUTE_FAILED)
-                    missingWords.add(words.get(i));
-            }
-
-            if(!missingWords.isEmpty())
-                throw new WordsAlreadyInDatabaseException(missingWords);
+            this.deleteWordStmt.executeBatch();
 
         } catch (SQLException exception) {
             throw new ConnectionException();
