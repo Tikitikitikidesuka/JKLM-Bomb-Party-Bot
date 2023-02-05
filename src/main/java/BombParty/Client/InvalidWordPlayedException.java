@@ -4,7 +4,7 @@ public class InvalidWordPlayedException extends BombPartyRoomException {
     private final String word;
 
     public InvalidWordPlayedException(BombPartyRoom room, String word) {
-        super(room, "Invalid word \"" + word + "\" played for syllable \"" + room.getSyllable() + "\"");
+        super(room, "Invalid word \"" + word + "\" played for syllable \"" + room.getLastTurnData().getSyllable() + "\"");
         this.word = word;
     }
 

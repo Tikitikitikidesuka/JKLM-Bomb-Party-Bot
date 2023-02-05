@@ -1,16 +1,10 @@
 package BombParty.Bot;
 
-import BombParty.Client.BombPartyClient;
-import BombParty.Client.BombPartyRoom;
+import BombParty.Client.*;
 import BombParty.Client.Implementations.Selenium.SeleniumBombPartyClient;
-import BombParty.Client.InvalidWordPlayedException;
 import BombParty.WordServer.ConnectionException;
 import BombParty.WordServer.Implementations.SQLite.SQLiteWordServer;
 import BombParty.WordServer.WordServer;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Random;
 
 public class BombPartyBot {
@@ -44,21 +38,24 @@ public class BombPartyBot {
 
     public void playRound() {
         this.room.joinRound();
-        Collection<Character> missingLetters = new ArrayList<>();
-        while (this.room.waitTurn(missingLetters)) {
+
+        BombPartyTurnData turnData;
+        while ((turnData = this.room.waitTurn()) != null) {
             boolean validWord = false;
             while (!validWord) {
-                String syllable = this.room.getSyllable();
-                String word = this.wordServer.getWordContaining(syllable, missingLetters);
+                String playWord = this.wordServer.getWordContaining(
+                        turnData.getSyllable(), turnData.getMissingLetters());
+
                 try {
                     try {
-                        this.animateTypeWord(word);
+                        this.animateTypeWord(playWord);
                     } catch (InterruptedException ignored) {}
-                    this.room.playWord(word);
+                    this.room.playWord(playWord);
+                    validWord = true;
                 } catch (InvalidWordPlayedException invalidWord) {
-                    validWord = false;
-                    this.wordServer.deleteWord(word);
+                    this.wordServer.deleteWord(playWord);
                 }
+
                 try {
                     Thread.sleep(getMilliseconds()*2);
                 } catch (InterruptedException ignored) {}

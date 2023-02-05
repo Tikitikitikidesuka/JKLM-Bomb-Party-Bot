@@ -4,10 +4,10 @@ import java.util.Collection;
 
 public interface BombPartyRoom {
     String getId();
+    BombPartyTurnData getLastTurnData();
 
     void joinRound();
-    boolean waitTurn(Collection<Character> missingLetters);
-    String getSyllable();
+    BombPartyTurnData waitTurn();
     void typeWord(String word);
     void playWord(String word) throws InvalidWordPlayedException;
 
