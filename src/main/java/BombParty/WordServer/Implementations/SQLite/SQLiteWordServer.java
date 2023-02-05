@@ -193,6 +193,7 @@ public class SQLiteWordServer implements WordServer {
         Statement createStmt = connection.createStatement();
         createStmt.executeUpdate("""
             CREATE TABLE IF NOT EXISTS words(
+                id INTEGER PRIMARY KEY,
                 word TEXT UNIQUE NOT NULL)
         """);
         createStmt.executeUpdate("""
