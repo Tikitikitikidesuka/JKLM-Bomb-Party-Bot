@@ -25,9 +25,9 @@ public class BombPartyBot {
                 config.getDriver(),
                 config.getDriverPath());
         this.room = null;
-        this.wordServer = new SQLiteWordServer();
+        this.wordServer = new SQLiteWordServer(config.getDbPath());
         try {
-            this.wordServer.connect(config.getDbPath());
+            this.wordServer.connect();
         } catch (ConnectionException exception) {
             throw new WordServerConnectionException();
         }
