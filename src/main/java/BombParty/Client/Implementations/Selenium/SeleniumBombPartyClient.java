@@ -21,7 +21,7 @@ public class SeleniumBombPartyClient implements BombPartyClient {
     }
 
     @Override
-    public void setNickname(String nickname) throws InvalidNicknameException, InARoomException {
+    public void setNickname(String nickname) throws InvalidNicknameException { // Need to use this exception
         this.nickname = nickname;
     }
 
