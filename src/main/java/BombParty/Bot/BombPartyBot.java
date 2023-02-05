@@ -1,5 +1,6 @@
 package BombParty.Bot;
 
+import BombParty.Bot.Config.BombPartyBotConfig;
 import BombParty.Client.*;
 import BombParty.Client.Implementations.Selenium.SeleniumBombPartyClient;
 import BombParty.WordServer.ConnectionException;
@@ -13,6 +14,7 @@ public class BombPartyBot {
     private BombPartyRoom room;
     private final WordServer wordServer;
     private final BombPartyBotConfig config;
+    private final Random rng;
 
     public BombPartyBot(BombPartyBotConfig config) {
         this.config = config;
@@ -22,6 +24,7 @@ public class BombPartyBot {
         this.room = null;
         this.wordServer = new SQLiteWordServer();
         this.wordServer.connect(config.getDbPath());
+        this.rng = new Random(System.currentTimeMillis());
     }
 
     public void joinRoom(String roomCode) throws ConnectionException {
@@ -47,9 +50,7 @@ public class BombPartyBot {
                         turnData.getSyllable(), turnData.getMissingLetters());
 
                 try {
-                    try {
-                        this.animateTypeWord(playWord);
-                    } catch (InterruptedException ignored) {}
+                    this.animateTypeWord(playWord);
                     this.room.playWord(playWord);
                     validWord = true;
                 } catch (InvalidWordPlayedException invalidWord) {
@@ -57,24 +58,40 @@ public class BombPartyBot {
                 }
 
                 try {
-                    Thread.sleep(getMilliseconds()*2);
+                    Thread.sleep(getThinkMilliseconds());
                 } catch (InterruptedException ignored) {}
             }
         }
     }
 
-    private void animateTypeWord(String word) throws InterruptedException{
+    private void animateTypeWord(String word) {
         for(int i = 1; i < word.length(); i++) {
             this.room.typeWord(word.substring(0, i));
-            Thread.sleep(getMilliseconds());
+
+            try {
+                long ms = getKeystrokeMilliseconds();
+                System.out.println(ms);
+                Thread.sleep(ms);
+            } catch (InterruptedException ignored) {}
         }
     }
 
-    private long getMilliseconds() {
-        Random random = new Random(System.currentTimeMillis());
-        return random.nextLong(
-                this.config.getMinTypingIntervalMs(),
-                this.config.getMaxTypingIntervalMs());
+    private long getKeystrokeMilliseconds() {
+        if (this.config.getAnimationConfig() == null || this.config.getAnimationConfig().getKeystrokeDistribution() == null)
+            return 0;
+
+        return (long) Math.max(0, (this.rng.nextGaussian() *
+                this.config.getAnimationConfig().getKeystrokeDistribution().stdDeviation +
+                this.config.getAnimationConfig().getKeystrokeDistribution().mean));
+    }
+
+    private long getThinkMilliseconds() {
+        if (this.config.getAnimationConfig() == null || this.config.getAnimationConfig().getThinkDistribution() == null)
+            return 0;
+
+        return (long) Math.max(0, (this.rng.nextGaussian() *
+                this.config.getAnimationConfig().getThinkDistribution().stdDeviation +
+                this.config.getAnimationConfig().getThinkDistribution().mean));
     }
 
     public BombPartyBotConfig getConfig() {
