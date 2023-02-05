@@ -33,7 +33,9 @@ public class BombPartyBot {
         }
     }
 
-    public void joinRoom(String roomCode) throws WordServerConnectionException {
+    public void joinRoom(String roomCode, String nickname) throws WordServerConnectionException {
+        this.client.setNickname(nickname);
+
         if(room != null) {
             exitRoom();
             try {

@@ -12,6 +12,14 @@ import java.nio.file.Paths;
 
 public class main {
     public static void main(String[] args) throws InterruptedException {
+        if (args.length != 2) {
+            System.out.println("Usage:\n\tbombpartybot <room> <nickname>");
+            System.exit(-1);
+        }
+
+        String roomCode = args[0];
+        String nickname = args[1];
+
         BombPartyBotAnimationConfig animationConfig = new BombPartyBotAnimationConfig();
         animationConfig.setKeystrokeDistribution(226, 15); // 89.56 WPM
         animationConfig.setThinkTimeDistribution(500, 150);
@@ -24,7 +32,7 @@ public class main {
         try {
             BombPartyBot bot = new BombPartyBot(config);
 
-            bot.joinRoom("RKRJ");
+            bot.joinRoom(roomCode, nickname);
             while (true) {
                 bot.playRound();
             }
