@@ -76,7 +76,7 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void insertWords(List<String> words) throws ConnectionException {
+    public void insertWords(Collection<String> words) throws ConnectionException {
         try {
             for (String word : words) {
                 word = word.trim().toUpperCase();
@@ -92,7 +92,7 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void deleteWords(List<String> words) throws ConnectionException {
+    public void deleteWords(Collection<String> words) throws ConnectionException {
         try {
             for (String word : words) {
                 word = word.trim().toUpperCase();
