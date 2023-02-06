@@ -1,7 +1,5 @@
 package BombParty.Client;
 
-import java.util.Collection;
-
 public interface BombPartyRoom {
     String getId();
     BombPartyTurnData getLastTurnData();

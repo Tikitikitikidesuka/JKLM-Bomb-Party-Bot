@@ -1,7 +1,5 @@
 package BombParty.WordServer;
 
-import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 

@@ -1,12 +1,7 @@
 import BombParty.Bot.BombPartyBot;
 import BombParty.Bot.Config.BombPartyBotConfig;
 import BombParty.Bot.Config.BombPartyBotAnimationConfig;
-import BombParty.Bot.Config.BombPartyBotConfig;
 import BombParty.Bot.WordServerConnectionException;
-import BombParty.Client.BombPartyClient;
-import BombParty.Client.BombPartyRoom;
-import BombParty.Client.Implementations.Selenium.SeleniumBombPartyClient;
-import BombParty.Client.InvalidWordPlayedException;
 
 import java.nio.file.Paths;
 
