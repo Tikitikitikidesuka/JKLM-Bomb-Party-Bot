@@ -4,7 +4,6 @@ import BombParty.Client.BombPartyRoom;
 import BombParty.Client.BombPartyTurnData;
 import BombParty.Client.InvalidWordPlayedException;
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,9 +11,9 @@ import java.util.LinkedList;
 import java.util.stream.Collectors;
 
 class SeleniumBombPartyRoom implements BombPartyRoom {
-    private String id = null;
-    private WebDriver webDriver = null;
-    private JavascriptExecutor js = null;
+    private final String id;
+    private final WebDriver webDriver;
+    private final JavascriptExecutor js;
     private BombPartyTurnData lastTurnData = null;
     private boolean waitTurnInitialized = false;
 
@@ -35,7 +34,6 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public void joinRound() {
-        WebDriverWait wait = new WebDriverWait(this.webDriver, 2);
         this.js.executeScript("socket.emit(\"joinRound\")");
     }
 
@@ -52,7 +50,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
         // This code will execute when it is the bot's turn
         BombPartyTurnData turnData = new SeleniumBombPartyTurnData(getSyllableOnTurn(), new ArrayList<String>(), getMissingLettersOnTurn());
-        lastTurnData = turnData;
+        this.lastTurnData = turnData;
 
         return turnData;
     }
@@ -118,8 +116,8 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
                                 
                         cached_function.apply(this, arguments);
                     };
-                })(); 
-                """);
+                })();
+               """);
     }
 
     private boolean isTurnAlready() {
@@ -133,7 +131,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
                     callback(event.detail.valid);
                 }
                                 
-                var callback = arguments[arguments.length - 1];                
+                var callback = arguments[arguments.length - 1];
                 window.addEventListener("selfTurn", selfTurnInjectionCallback);
                 """) ;
     }

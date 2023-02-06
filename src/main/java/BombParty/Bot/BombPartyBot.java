@@ -2,12 +2,9 @@ package BombParty.Bot;
 
 import BombParty.Bot.Config.BombPartyBotConfig;
 import BombParty.Client.*;
-import BombParty.Client.Implementations.Selenium.SeleniumBombPartyClient;
 import BombParty.Client.InvalidWordPlayedException;
 import BombParty.WordServer.ConnectionException;
-import BombParty.WordServer.Implementations.SQLite.SQLiteWordServer;
 import BombParty.WordServer.NoMatchingWordException;
-import BombParty.WordServer.WordServer;
 import java.util.Random;
 
 public class BombPartyBot {
@@ -25,7 +22,7 @@ public class BombPartyBot {
     public void joinRoom(String roomCode, String nickname) throws ConnectionException, InvalidRoomCodeException, RoomNotFoundException {
         this.config.getClient().setNickname(nickname);
 
-        if(room != null) {
+        if(this.room != null) {
             exitRoom();
             this.config.getWordServer().clearUsed();
         }

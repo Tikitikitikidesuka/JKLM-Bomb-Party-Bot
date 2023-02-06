@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class SQLiteWordServer implements WordServer {
-    private Path databasePath;
+    private final Path databasePath;
     private Connection connection;
     private PreparedStatement getWordBySyllableStmt,
             getWordBySyllableAndLettersStmt,
@@ -47,8 +47,8 @@ public class SQLiteWordServer implements WordServer {
     @Override
     public void disconnect() throws ConnectionException {
         try {
-            if (connection != null)
-                connection.close();
+            if (this.connection != null)
+                this.connection.close();
         } catch (SQLException exception) {
             throw new ConnectionException();
         }
@@ -57,7 +57,7 @@ public class SQLiteWordServer implements WordServer {
     @Override
     public void clearUsed() throws ConnectionException {
         try {
-            Statement createStmt = connection.createStatement();
+            Statement createStmt = this.connection.createStatement();
             createStmt.executeUpdate("""
             DELETE FROM used
         """);
@@ -174,7 +174,7 @@ public class SQLiteWordServer implements WordServer {
     }
 
     private void ensureDatabase() throws SQLException {
-        Statement createStmt = connection.createStatement();
+        Statement createStmt = this.connection.createStatement();
         createStmt.executeUpdate("""
             CREATE TABLE IF NOT EXISTS words(
                 id INTEGER PRIMARY KEY,
@@ -267,7 +267,6 @@ public class SQLiteWordServer implements WordServer {
         """);
     }
 
-    // Eliminar palabra por palabra en vez de id para cuando la sacas de otro pavo :(
     private void prepareUseWordStmt() throws SQLException {
         this.useWordStmt= this.connection.prepareStatement("""
             INSERT OR IGNORE INTO used (wordId)
