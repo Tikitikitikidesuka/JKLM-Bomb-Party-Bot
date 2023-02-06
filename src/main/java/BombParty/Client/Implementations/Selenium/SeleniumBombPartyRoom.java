@@ -5,7 +5,6 @@ import BombParty.Client.BombPartyTurnData;
 import BombParty.Client.InvalidWordPlayedException;
 import org.openqa.selenium.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
@@ -34,7 +33,6 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public void joinRound() {
-        WebDriverWait wait = new WebDriverWait(this.webDriver, 2);
         this.js.executeScript("socket.emit(\"joinRound\")");
     }
 
