@@ -7,10 +7,14 @@ import java.util.Collection;
 
 public class SeleniumBombPartyTurnData implements BombPartyTurnData {
     private final String syllable;
+    private final Collection<String> usedWords;
     private final Collection<Character> missingLetters;
 
-    public SeleniumBombPartyTurnData(String syllable, Collection<Character> missingLetters) {
+    public SeleniumBombPartyTurnData(String syllable,
+                                     Collection<String> usedWords,
+                                     Collection<Character> missingLetters) {
         this.syllable = syllable;
+        this.usedWords = usedWords;
         this.missingLetters = missingLetters;
     }
 
@@ -21,7 +25,7 @@ public class SeleniumBombPartyTurnData implements BombPartyTurnData {
 
     @Override
     public Collection<String> getUsedWords() {
-        return new ArrayList<>();
+        return this.usedWords;
     }
 
     @Override

@@ -6,6 +6,7 @@ import BombParty.Client.InvalidWordPlayedException;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
             return null;
 
         // This code will execute when it is the bot's turn
-        BombPartyTurnData turnData = new SeleniumBombPartyTurnData(getSyllableOnTurn(), getMissingLettersOnTurn());
+        BombPartyTurnData turnData = new SeleniumBombPartyTurnData(getSyllableOnTurn(), new ArrayList<String>(), getMissingLettersOnTurn());
         lastTurnData = turnData;
 
         return turnData;
