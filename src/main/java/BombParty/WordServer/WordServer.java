@@ -29,7 +29,6 @@ public interface WordServer {
 
     /**
      * Marks a given word as used.
-     *
      * All words marked as used will be reset at the end of the session.
      *
      * @param word the word to be marked as used
@@ -75,6 +74,7 @@ public interface WordServer {
 
     /**
      * Gets a word from the word server that contains a specified syllable.
+     * The extracted word is marked as used.
      *
      * @param syllable the syllable to search for
      * @return a word containing the syllable
@@ -86,6 +86,7 @@ public interface WordServer {
     /**
      * Gets a word from the word server that contains a specified syllable and
      * as many of the specified letters as possible.
+     * The extracted word is marked as used.
      *
      * @param syllable the syllable to search for
      * @param letters the letters to include in the search
