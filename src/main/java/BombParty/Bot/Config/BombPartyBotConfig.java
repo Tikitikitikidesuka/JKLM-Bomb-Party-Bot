@@ -3,8 +3,6 @@ package BombParty.Bot.Config;
 import BombParty.Client.BombPartyClient;
 import BombParty.WordServer.WordServer;
 
-import java.nio.file.Path;
-
 public class BombPartyBotConfig {
     private final BombPartyClient client;
     private final WordServer wordServer;
@@ -20,11 +18,11 @@ public class BombPartyBotConfig {
     }
 
     public BombPartyClient getClient() {
-        return client;
+        return this.client;
     }
 
     public WordServer getWordServer() {
-        return wordServer;
+        return this.wordServer;
     }
 
     public BombPartyBotAnimationConfig getAnimationConfig() {
