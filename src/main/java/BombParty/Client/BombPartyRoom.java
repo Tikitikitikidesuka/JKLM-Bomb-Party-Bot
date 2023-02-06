@@ -20,7 +20,7 @@ public interface BombPartyRoom {
     void joinRound();
 
     /**
-     * @return the {@link BombParty.Client.BombPartyTurnData}
+     * @return the {@link BombPartyTurnData}
      * of the Client's turn, or null if the game has ended
      */
     BombPartyTurnData waitTurn();
