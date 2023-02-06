@@ -50,11 +50,30 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
         if (!this.isTurnAlready() && !this.waitTurnOrGameEnd())
             return null;
 
+
+
         // This code will execute when it is the bot's turn
-        BombPartyTurnData turnData = new SeleniumBombPartyTurnData(getSyllableOnTurn(), new ArrayList<String>(), getMissingLettersOnTurn());
+        BombPartyTurnData turnData = new SeleniumBombPartyTurnData(
+                this.getSyllableOnTurn(),
+                this.getUsedWordsOnTurn(),
+                this.getMissingLettersOnTurn());
         lastTurnData = turnData;
 
         return turnData;
+    }
+
+    private Collection<String> getUsedWordsOnTurn() {
+        return (Collection<String>) this.js.executeScript("""
+            var turnUsedWords = [];
+            
+            for (let i in milestone.playerStatesByPeerId) {
+                if (i != milestone.currentPlayerPeerId && milestone.playerStatesByPeerId[i].wasWordValidated) {
+                    turnUsedWords.push(milestone.playerStatesByPeerId[i].word);
+                }
+            }
+            
+            return turnUsedWords;
+        """);
     }
 
     @Override
