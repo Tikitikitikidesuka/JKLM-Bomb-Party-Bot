@@ -2,6 +2,7 @@ package BombParty.Client.Implementations.Selenium;
 
 import BombParty.Client.BombPartyTurnData;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class SeleniumBombPartyTurnData implements BombPartyTurnData {
@@ -16,6 +17,11 @@ public class SeleniumBombPartyTurnData implements BombPartyTurnData {
     @Override
     public String getSyllable() {
         return this.syllable;
+    }
+
+    @Override
+    public Collection<String> getUsedWords() {
+        return new ArrayList<>();
     }
 
     @Override
