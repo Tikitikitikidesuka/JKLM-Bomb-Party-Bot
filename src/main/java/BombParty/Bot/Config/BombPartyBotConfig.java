@@ -1,35 +1,30 @@
 package BombParty.Bot.Config;
 
+import BombParty.Client.BombPartyClient;
+import BombParty.WordServer.WordServer;
+
 import java.nio.file.Path;
 
 public class BombPartyBotConfig {
-    private final String driver;
-    private final Path driverPath;
-    private final Path dbPath;
-    private BombPartyBotAnimationConfig animationConfig;
+    private final BombPartyClient client;
+    private final WordServer wordServer;
+    private final BombPartyBotAnimationConfig animationConfig;
 
-    public BombPartyBotConfig(String driver, Path driverPath, Path dbPath) {
-        this(driver, driverPath, dbPath, null);
-    }
-
-    public BombPartyBotConfig(String driver, Path driverPath, Path dbPath,
-                              BombPartyBotAnimationConfig animationConfig) {
-        this.driver = driver;
-        this.driverPath = driverPath;
-        this.dbPath = dbPath;
+    public BombPartyBotConfig(
+            BombPartyClient client,
+            WordServer wordServer,
+            BombPartyBotAnimationConfig animationConfig) {
+        this.client = client;
+        this.wordServer = wordServer;
         this.animationConfig = animationConfig;
     }
 
-    public String getDriver() {
-        return driver;
+    public BombPartyClient getClient() {
+        return client;
     }
 
-    public Path getDriverPath() {
-        return driverPath;
-    }
-
-    public Path getDbPath() {
-        return dbPath;
+    public WordServer getWordServer() {
+        return wordServer;
     }
 
     public BombPartyBotAnimationConfig getAnimationConfig() {

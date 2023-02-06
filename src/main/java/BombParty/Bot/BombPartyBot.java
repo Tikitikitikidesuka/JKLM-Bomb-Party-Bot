@@ -11,33 +11,26 @@ import BombParty.WordServer.WordServer;
 import java.util.Random;
 
 public class BombPartyBot {
-
-    private final BombPartyClient client;
     private BombPartyRoom room;
-    private final WordServer wordServer;
     private final BombPartyBotConfig config;
     private final Random rng;
 
     public BombPartyBot(BombPartyBotConfig config) throws ConnectionException {
         this.rng = new Random(System.currentTimeMillis());
         this.config = config;
-        this.client = new SeleniumBombPartyClient(
-                config.getDriver(),
-                config.getDriverPath());
         this.room = null;
-        this.wordServer = new SQLiteWordServer(config.getDbPath());
-        this.wordServer.connect();
+        this.config.getWordServer().connect();
     }
 
     public void joinRoom(String roomCode, String nickname) throws ConnectionException, InvalidRoomCodeException, RoomNotFoundException {
-        this.client.setNickname(nickname);
+        this.config.getClient().setNickname(nickname);
 
         if(room != null) {
             exitRoom();
-            this.wordServer.clearUsed();
+            this.config.getWordServer().clearUsed();
         }
 
-        this.room = this.client.joinRoom(roomCode);
+        this.room = this.config.getClient().joinRoom(roomCode);
     }
 
     public void exitRoom() {
@@ -52,7 +45,7 @@ public class BombPartyBot {
             try {
                 boolean validWord = false;
                 while (!validWord) {
-                    String playWord = this.wordServer.getWordContaining(
+                    String playWord = this.config.getWordServer().getWordContaining(
                             turnData.getSyllable(), turnData.getMissingLetters());
 
                     try {
@@ -60,7 +53,7 @@ public class BombPartyBot {
                         this.room.playWord(playWord);
                         validWord = true;
                     } catch (InvalidWordPlayedException invalidWord) {
-                        this.wordServer.deleteWord(playWord);
+                        this.config.getWordServer().deleteWord(playWord);
                     }
 
                     try {
