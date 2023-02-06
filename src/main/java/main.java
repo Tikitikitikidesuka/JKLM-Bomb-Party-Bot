@@ -1,12 +1,14 @@
 import BombParty.Bot.BombPartyBot;
 import BombParty.Bot.Config.BombPartyBotConfig;
 import BombParty.Bot.Config.BombPartyBotAnimationConfig;
-import BombParty.Bot.WordServerConnectionException;
+import BombParty.Client.InvalidRoomCodeException;
+import BombParty.Client.RoomNotFoundException;
+import BombParty.WordServer.ConnectionException;
 
 import java.nio.file.Paths;
 
 public class main {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws ConnectionException, InvalidRoomCodeException, RoomNotFoundException {
         if (args.length != 2) {
             System.out.println("Usage:\n\tbombpartybot <room> <nickname>");
             System.exit(-1);
@@ -24,15 +26,11 @@ public class main {
                 Paths.get("jklm_words.db"),
                 animationConfig);
 
-        try {
-            BombPartyBot bot = new BombPartyBot(config);
+        BombPartyBot bot = new BombPartyBot(config);
 
-            bot.joinRoom(roomCode, nickname);
-            while (true) {
-                bot.playRound();
-            }
-        } catch (WordServerConnectionException exception) {
-
+        bot.joinRoom(roomCode, nickname);
+        while (true) {
+            bot.playRound();
         }
     }
 }

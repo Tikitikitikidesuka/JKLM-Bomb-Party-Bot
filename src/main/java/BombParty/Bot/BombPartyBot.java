@@ -18,7 +18,7 @@ public class BombPartyBot {
     private final BombPartyBotConfig config;
     private final Random rng;
 
-    public BombPartyBot(BombPartyBotConfig config) throws WordServerConnectionException {
+    public BombPartyBot(BombPartyBotConfig config) throws ConnectionException {
         this.rng = new Random(System.currentTimeMillis());
         this.config = config;
         this.client = new SeleniumBombPartyClient(
@@ -26,24 +26,17 @@ public class BombPartyBot {
                 config.getDriverPath());
         this.room = null;
         this.wordServer = new SQLiteWordServer(config.getDbPath());
-        try {
-            this.wordServer.connect();
-        } catch (ConnectionException exception) {
-            throw new WordServerConnectionException();
-        }
+        this.wordServer.connect();
     }
 
-    public void joinRoom(String roomCode, String nickname) throws WordServerConnectionException {
+    public void joinRoom(String roomCode, String nickname) throws ConnectionException, InvalidRoomCodeException, RoomNotFoundException {
         this.client.setNickname(nickname);
 
         if(room != null) {
             exitRoom();
-            try {
-                this.wordServer.clearUsed();
-            } catch (ConnectionException exception) {
-                throw new WordServerConnectionException();
-            }
+            this.wordServer.clearUsed();
         }
+
         this.room = this.client.joinRoom(roomCode);
     }
 
@@ -51,7 +44,7 @@ public class BombPartyBot {
         this.room.exit();
     }
 
-    public void playRound() throws WordServerConnectionException {
+    public void playRound() throws ConnectionException {
         this.room.joinRound();
 
         BombPartyTurnData turnData;
@@ -74,8 +67,6 @@ public class BombPartyBot {
                         Thread.sleep(getThinkMilliseconds());
                     } catch (InterruptedException ignored) {}
                 }
-            } catch (ConnectionException exception) {
-                throw new WordServerConnectionException();
             } catch (NoMatchingWordException ignored) {} // Due to word database limitations
         }
     }
