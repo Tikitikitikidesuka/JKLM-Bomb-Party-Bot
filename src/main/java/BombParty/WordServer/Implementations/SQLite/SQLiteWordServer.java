@@ -16,6 +16,7 @@ public class SQLiteWordServer implements WordServer {
             getWordBySyllableAndLettersStmt,
             insertWordStmt,
             deleteWordStmt,
+            useWordByIdStmt,
             useWordStmt;
 
     public SQLiteWordServer(Path databasePath) {
@@ -60,6 +61,16 @@ public class SQLiteWordServer implements WordServer {
             createStmt.executeUpdate("""
             DELETE FROM used
         """);
+        } catch (SQLException exception) {
+            throw new ConnectionException();
+        }
+    }
+
+    @Override
+    public void markUsed(String word) throws ConnectionException {
+        try {
+            this.useWordStmt.setString(1, word);
+            this.useWordStmt.executeUpdate();
         } catch (SQLException exception) {
             throw new ConnectionException();
         }
@@ -122,8 +133,8 @@ public class SQLiteWordServer implements WordServer {
                 throw new NoMatchingWordException();
             }
 
-            this.useWordStmt.setInt(1, results.getInt("id"));
-            this.useWordStmt.executeUpdate();
+            this.useWordByIdStmt.setInt(1, results.getInt("id"));
+            this.useWordByIdStmt.executeUpdate();
 
         } catch (SQLException exception) {
             throw new ConnectionException();
@@ -152,8 +163,8 @@ public class SQLiteWordServer implements WordServer {
                 throw new NoMatchingWordException();
             }
 
-            this.useWordStmt.setInt(1, results.getInt("id"));
-            this.useWordStmt.executeUpdate();
+            this.useWordByIdStmt.setInt(1, results.getInt("id"));
+            this.useWordByIdStmt.executeUpdate();
 
         } catch (SQLException exception) {
             throw new ConnectionException();
@@ -183,6 +194,7 @@ public class SQLiteWordServer implements WordServer {
         this.prepareGetWordBySyllableAndLettersStmt();
         this.prepareInsertWordStmt();
         this.prepareDeleteWordStmt();
+        this.prepareUseWordByIdStmt();
         this.prepareUseWordStmt();
     }
 
@@ -248,10 +260,20 @@ public class SQLiteWordServer implements WordServer {
         """);
     }
 
-    private void prepareUseWordStmt() throws SQLException {
-        this.useWordStmt = this.connection.prepareStatement("""
+    private void prepareUseWordByIdStmt() throws SQLException {
+        this.useWordByIdStmt = this.connection.prepareStatement("""
             INSERT OR IGNORE INTO used (wordId)
             VALUES (?)
+        """);
+    }
+
+    // Eliminar palabra por palabra en vez de id para cuando la sacas de otro pavo :(
+    private void prepareUseWordStmt() throws SQLException {
+        this.useWordStmt= this.connection.prepareStatement("""
+            INSERT OR IGNORE INTO used (wordId)
+            SELECT id
+            FROM words
+            WHERE word = ?
         """);
     }
 }

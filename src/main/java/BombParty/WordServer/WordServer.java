@@ -35,9 +35,7 @@ public interface WordServer {
      * @param word the word to be marked as used
      * @throws ConnectionException if there is an issue communicating with the server
      */
-    /*
     void markUsed(String word) throws ConnectionException;
-    */
 
     /**
      * Inserts a word into the word server.
