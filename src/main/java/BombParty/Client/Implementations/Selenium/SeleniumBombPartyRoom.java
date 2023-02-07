@@ -44,16 +44,15 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
         }
 
         // Wait for the client's turn and detect the end of the round
-        if (!this.isTurnAlready() && !this.waitTurnOrGameEnd())
+        if (!this.waitTurnOrGameEnd())
             return null;
-
-
 
         // This code will execute when it is the bot's turn
         BombPartyTurnData turnData = new SeleniumBombPartyTurnData(
                 this.getSyllableOnTurn(),
                 this.getUsedWordsOnTurn(),
                 this.getMissingLettersOnTurn());
+
         this.lastTurnData = turnData;
 
         return turnData;
@@ -120,7 +119,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
                                 
                     return function() {
                         if (milestone.currentPlayerPeerId === selfPeerId)
-                            window.dispatchEvent(new CustomEvent("selfTurn", {detail: {valid: true}}));
+                            window.dispatchEvent(new CustomEvent("selfTurnInjectionEvent", {detail: {valid: true}}));
                                 
                         cached_function.apply(this, arguments);
                     };
@@ -130,7 +129,7 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
                     var cached_function = round_exit;
                                 
                     return function() {
-                        window.dispatchEvent(new CustomEvent("selfTurn", {detail: {valid: false}}));
+                        window.dispatchEvent(new CustomEvent("selfTurnInjectionEvent", {detail: {valid: false}}));
                                 
                         cached_function.apply(this, arguments);
                     };
@@ -138,19 +137,27 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
                """);
     }
 
-    private boolean isTurnAlready() {
-        return (boolean) this.js.executeScript("return milestone.currentPlayerId === selfPeerId;");
-    }
-
     private boolean waitTurnOrGameEnd() {
         return (boolean) this.js.executeAsyncScript("""
                 function selfTurnInjectionCallback(event) {
-                    window.removeEventListener("selfTurn", selfTurnInjectionCallback);
+                    console.log("Classic end");
+                    window.removeEventListener("selfTurnInjectionEvent", selfTurnInjectionCallback);
                     callback(event.detail.valid);
                 }
                                 
                 var callback = arguments[arguments.length - 1];
-                window.addEventListener("selfTurn", selfTurnInjectionCallback);
+                window.addEventListener("selfTurnInjectionEvent", selfTurnInjectionCallback);
+                
+                console.log("Waiting...");
+                
+                // Check in case it is already the client's turn
+                if (milestone.currentPlayerPeerId === selfPeerId) {
+                    console.log("Atomic end");
+                    window.removeEventListener("selfTurnInjectionEvent", selfTurnInjectionCallback);
+                    callback(true);
+                } else {
+                    console.log("Not my turn yet");
+                }
                 """) ;
     }
 
