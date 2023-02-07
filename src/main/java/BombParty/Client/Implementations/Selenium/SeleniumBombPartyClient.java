@@ -3,6 +3,7 @@ package BombParty.Client.Implementations.Selenium;
 import BombParty.Client.*;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -35,7 +36,10 @@ public class SeleniumBombPartyClient implements BombPartyClient {
         if (this.webDriver != null)
             this.webDriver.quit();
 
-        this.webDriver = new ChromeDriver();
+        ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("--headless");
+
+        this.webDriver = new ChromeDriver(chromeOptions);
         this.webDriver.manage().window().maximize();
         this.webDriver.manage().deleteAllCookies();
         this.webDriver.manage().timeouts().pageLoadTimeout(Constants.PAGE_LOAD_TIMEOUT, TimeUnit.SECONDS);
