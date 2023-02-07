@@ -39,6 +39,11 @@ public class BombPartyBot {
 
         BombPartyTurnData turnData;
         while ((turnData = this.room.waitTurn()) != null) {
+            // Insert used words into the word server if they are not in it
+            // and mark them as used for this session
+            this.config.getWordServer().insertWords(turnData.getUsedWords());
+            this.config.getWordServer().markUsedWords(turnData.getUsedWords());
+
             try {
                 boolean validWord = false;
                 while (!validWord) {
