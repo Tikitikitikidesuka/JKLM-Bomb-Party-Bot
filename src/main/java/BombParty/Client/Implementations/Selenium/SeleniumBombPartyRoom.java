@@ -14,12 +14,13 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
     private final WebDriver webDriver;
     private final JavascriptExecutor js;
     private BombPartyTurnData lastTurnData = null;
-    private boolean waitTurnInitialized = false;
 
     public SeleniumBombPartyRoom(WebDriver webDriver, String id) {
         this.id = id;
         this.webDriver = webDriver;
         this.js = (JavascriptExecutor) this.webDriver;
+
+        this.initializeWaitTurnJs();
     }
     @Override
     public String getId() {
@@ -38,11 +39,6 @@ class SeleniumBombPartyRoom implements BombPartyRoom {
 
     @Override
     public BombPartyTurnData waitTurn() {
-        if (!this.waitTurnInitialized) {
-            this.initializeWaitTurnJs();
-            this.waitTurnInitialized = true;
-        }
-
         // Wait for the client's turn and detect the end of the round
         if (!this.waitTurnOrGameEnd())
             return null;
