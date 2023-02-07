@@ -34,7 +34,16 @@ public interface WordServer {
      * @param word the word to be marked as used
      * @throws ConnectionException if there is an issue communicating with the server
      */
-    void markUsed(String word) throws ConnectionException;
+    void markUsedWord(String word) throws ConnectionException;
+
+    /**
+     * Marks all the words in a given collection as used.
+     * All words marked as used will be reset at the end of the session.
+     *
+     * @param words the collection of words to be marked as used
+     * @throws ConnectionException if there is an issue communicating with the server
+     */
+    void markUsedWords(Collection<String> words) throws ConnectionException;
 
     /**
      * Inserts a word into the word server.

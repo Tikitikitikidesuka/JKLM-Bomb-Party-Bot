@@ -67,10 +67,27 @@ public class SQLiteWordServer implements WordServer {
     }
 
     @Override
-    public void markUsed(String word) throws ConnectionException {
+    public void markUsedWord(String word) throws ConnectionException {
         try {
             this.useWordStmt.setString(1, word);
             this.useWordStmt.executeUpdate();
+
+        } catch (SQLException exception) {
+            throw new ConnectionException();
+        }
+    }
+
+    @Override
+    public void markUsedWords(Collection<String> words) throws ConnectionException {
+        try {
+            for (String word : words) {
+                word = word.trim().toUpperCase();
+                this.useWordStmt.setString(1, word);
+                this.useWordStmt.addBatch();
+            }
+
+            this.useWordStmt.executeBatch();
+
         } catch (SQLException exception) {
             throw new ConnectionException();
         }
